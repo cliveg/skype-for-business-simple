@@ -99,7 +99,7 @@
       "metadata": {
         "Description": "The name of the Skype For Business VM created"
       },
-      "defaultValue": "sfbserver"
+      "defaultValue": "sfbserver1"
     },
     "adminUsername": {
       "type": "string",
@@ -163,7 +163,7 @@
       "metadata": {
         "Description": "The size of the SQL VM Created"
       },
-      "defaultValue": "Standard_DS2"
+      "defaultValue": "Standard_DS1"
     },
     "spVMSize": {
       "type": "string",
@@ -227,7 +227,7 @@
     },
     "sqlImageSKU": {
       "type": "string",
-      "defaultValue": "Enterprise",
+      "defaultValue": "Standard",
       "metadata": {
         "Description": "Image SKU"
       }
@@ -377,7 +377,7 @@
       "metadata": {
         "Description": "The location of resources such as templates and DSC modules that the script is dependent"
       },
-      "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/sharepoint-three-vm"
+      "defaultValue": "https://raw.githubusercontent.com/cliveg/skype-for-business-simple/master"
     }
   },
 	"variables": {
