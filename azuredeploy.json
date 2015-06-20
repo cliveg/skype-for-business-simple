@@ -7,7 +7,7 @@
       "metadata": {
         "Description": "The name of the new storage account created to store the VMs disks"
       },
-      "defaultValue": "sfb-simple"
+      "defaultValue": "sfbsimple"
     },
     "storageAccountType": {
       "type": "string",
@@ -43,7 +43,7 @@
       "metadata": {
         "Description": "The name of the Virtual Network to Create"
       },
-      "defaultValue": "spfarmVNET"
+      "defaultValue": "sfbpoolVNET"
     },
     "virtualNetworkAddressRange": {
       "type": "string",
@@ -69,7 +69,7 @@
     "spSubnet": {
       "type": "string",
       "metadata": {
-        "Description": "The address range of the SP subnet created in the new VNET"
+        "Description": "The address range of the Skype For Business Server subnet created in the new VNET"
       },
       "defaultValue": "10.0.2.0/24"
     },
@@ -99,7 +99,7 @@
       "metadata": {
         "Description": "The name of the Skype For Business VM created"
       },
-      "defaultValue": "spserver"
+      "defaultValue": "sfbserver"
     },
     "adminUsername": {
       "type": "string",
@@ -265,7 +265,7 @@
       "metadata": {
         "Description": "The FQDN of the AD Domain created "
       },
-      "defaultValue": "sp2013domain.com"
+      "defaultValue": "ucpilot.com"
     },
     "sqlServerServiceAccountUserName": {
       "type": "string",
@@ -356,21 +356,21 @@
       "metadata": {
         "Description": "The DNS Prefix for the AD Public IP Address"
       },
-      "defaultValue": "ad"
+      "defaultValue": "sfbad"
     },
     "sqlDNSPrefix": {
       "type": "string",
       "metadata": {
         "Description": "The DNS Prefix for the SQL Public IP Address"
       },
-      "defaultValue": "sql"
+      "defaultValue": "sfbsql"
     },
     "spDNSPrefix": {
       "type": "string",
       "metadata": {
         "Description": "The DNS Prefix for the SharePoint Public IP Address"
       },
-      "defaultValue": "sfb"
+      "defaultValue": "sfbsp"
     },
     "AssetLocation": {
       "type": "string",
@@ -384,13 +384,13 @@
 		"LBFE": "LBFE",
 		"LBBE": "LBBE",
 		"RDPNAT": "RDP",
-		"spWebNAT": "spWeb",
+		"spWebNAT": "sfbWeb",
 		"adSubnetName": "adSubnet",
 		"sqlSubnetName": "sqlSubnet",
-		"spSubnetName": "spSubnet",
+		"spSubnetName": "sfbSubnet",
 		"adNicName": "adNic",
 		"sqlNicName": "sqlNic",
-		"spNicName": "spNic",
+		"spNicName": "sfbNic",
 		"VnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
 		"adSubnetRef": "[concat(variables('VnetID'),'/subnets/',variables('adSubnetName'))]",
 		"sqlSubnetRef": "[concat(variables('VnetID'),'/subnets/',variables('sqlSubnetName'))]",
