@@ -5,7 +5,7 @@ This template creates three new Azure VMs, each with a public IP address and loa
 Click the button below to deploy
 
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https://raw.githubusercontent.com/CliveG/skype-for-business-simple/master/skype-for-business-simple/azuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https://raw.githubusercontent.com/CliveG/skype-for-business-simple/master/azuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
@@ -57,7 +57,7 @@ storageAccountType      | Type of the storage account <br> <ul>**Allowed Values*
 | adDNSPrefix | The DNS prefix for the public IP address used by the Load Balancer for AD |
 | adSQLPrefix | The DNS prefix for the public IP address used by the Load Balancer for SQL |
 | adSPPrefix | The DNS prefix for the public IP address used by the Load Balancer for SP |
-| AssetLocation | The location of resources such as templates and DSC modules that the script is dependent <br> <ul><li> **https://raw.githubusercontent.com/cliveg/skype-for-business-simple/master/skype-for-business-simple (default)**</li></ul> |
+| AssetLocation | The location of resources such as templates and DSC modules that the script is dependent <br> <ul><li> **https://raw.githubusercontent.com/cliveg/skype-for-business-simple/master/ (default)**</li></ul> |
 
 #Known Issues
 
