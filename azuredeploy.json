@@ -460,7 +460,7 @@
 		"sqlModulesURL": "[concat(parameters('AssetLocation'),'/ConfigureSqlServer.ps1.zip')]",
 		"sqlConfigurationFunction": "ConfigureSqlServer.ps1\\ConfigureSqlServer",
 		"spModulesURL": "[concat(parameters('AssetLocation'),'/ConfigureSkypeForBusinessServer.ps1.zip')]",
-		"spConfigurationFunction": "ConfigureSkypeForBusinessServer.ps1\\SkypeForBusinessServer"
+		"spConfigurationFunction": "ConfigureSkypeForBusinessServer.ps1\\ConfigureSkypeForBusinessServer"
 	},
 	"resources": [
 		{
