@@ -188,7 +188,7 @@
       "metadata": {
         "Description": "The size of the Skype for Business VM Created"
       },
-      "defaultValue": "Standard_DS3"
+      "defaultValue": "Standard_DS1"
     },
     "adImagePublisher": {
       "type": "string",
@@ -418,13 +418,13 @@
 		"spWebNATRuleID": "[concat(variables('splbID'),'/inboundNatRules/',variables('spWebNAT'))]",
 		"spBEAddressPoolID": "[concat(variables('splbID'),'/backendAddressPools/',variables('LBBE'))]",
 		"adDataDisk": "ADDataDisk",
-		"adDataDiskSize": 1000,
+		"adDataDiskSize": 127,
 		"sqlDataDisk": "SQLDataDisk",
-		"sqlDataDiskSize": 1000,
+		"sqlDataDiskSize": 127,
 		"sqlLogDisk": "SQLLogDisk",
-		"sqlLogDiskSize": 1000,
+		"sqlLogDiskSize": 127,
 		"spDataDisk": "SPDataDisk",
-		"spDataDiskSize": 1000,
+		"spDataDiskSize": 127,
 		"adpublicIPAddressName": "adpublicIP",
 		"sqlpublicIPAddressName": "sqlpublicIP",
 		"sppublicIPAddressName": "sppublicIP",
