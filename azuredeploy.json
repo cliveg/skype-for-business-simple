@@ -933,10 +933,6 @@
 						"SqlServerServiceAccountcreds": {
 							"UserName": "[parameters('sqlServerServiceAccountUserName')]",
 							"Password": "PrivateSettingsRef:SqlServerServiceAccountPassword"
-						},
-						"SharePointSetupUserAccountcreds": {
-							"UserName": "[parameters('sharePointSetupUserAccountUserName')]",
-							"Password": "PrivateSettingsRef:SharePointSetupUserAccountPassword"
 						}
 					}
 				},
@@ -944,7 +940,6 @@
 					"Items": {
 						"AdminPassword": "[parameters('adminPassword')]",
 						"SqlServerServiceAccountPassword": "[parameters('sqlServerServiceAccountPassword')]",
-						"SharePointSetupUserAccountPassword": "[parameters('sharePointSetupUserAccountPassword')]"
 					}
 				}
 			}
