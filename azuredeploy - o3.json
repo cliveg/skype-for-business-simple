@@ -281,69 +281,6 @@
       },
       "defaultValue": "AzP@ssword1"
     },
-    "sharePointSetupUserAccountUserName": {
-      "type": "string",
-      "metadata": {
-        "Description": "The Sharepoint Setup account name"
-      },
-      "defaultValue": "sp_setup"
-    },
-    "sharePointSetupUserAccountPassword": {
-      "type": "securestring",
-      "metadata": {
-        "Description": "The Sharepoint Setup account password"
-      },
-      "defaultValue": "AzP@ssword1"
-    },
-    "sharePointFarmAccountUserName": {
-      "type": "string",
-      "metadata": {
-        "Description": "The Sharepoint Farm account name"
-      },
-      "defaultValue": "sp_farm"
-    },
-    "sharePointFarmAccountPassword": {
-      "type": "securestring",
-      "metadata": {
-        "Description": "The Sharepoint Farm account password"
-      },
-      "defaultValue": "AzP@ssword1"
-    },
-    "sharePointFarmPassphrasePassword": {
-      "type": "securestring",
-      "metadata": {
-        "Description": "The Sharepoint Farm Passphrase"
-      },
-      "defaultValue": "AzP@ssword1"
-    },
-    "configDatabaseName": {
-      "type": "string",
-      "metadata": {
-        "Description": "The Sharepoint Config Database Name"
-      },
-      "defaultValue": "SP_Config"
-    },
-    "administrationContentDatabaseName": {
-      "type": "string",
-      "metadata": {
-        "Description": "The Sharepoint Admin Site Database Name"
-      },
-      "defaultValue": "SP_AdminContent"
-    },
-    "contentDatabaseName": {
-      "type": "string",
-      "metadata": {
-        "Description": "The Sharepoint Admin Site Database Name"
-      },
-      "defaultValue": "spARM_Content"
-    },
-    "spSiteTemplateName": {
-      "type": "string",
-      "metadata": {
-        "Description": "The Sharepoint Content Site Template Name"
-      },
-      "defaultValue": "STS#0"
-    },
     "RDPPort": {
       "type": "int",
       "metadata": {
@@ -996,18 +933,13 @@
 						"SqlServerServiceAccountcreds": {
 							"UserName": "[parameters('sqlServerServiceAccountUserName')]",
 							"Password": "PrivateSettingsRef:SqlServerServiceAccountPassword"
-						},
-						"SharePointSetupUserAccountcreds": {
-							"UserName": "[parameters('sharePointSetupUserAccountUserName')]",
-							"Password": "PrivateSettingsRef:SharePointSetupUserAccountPassword"
 						}
 					}
 				},
 				"protectedSettings": {
 					"Items": {
 						"AdminPassword": "[parameters('adminPassword')]",
-						"SqlServerServiceAccountPassword": "[parameters('sqlServerServiceAccountPassword')]",
-						"SharePointSetupUserAccountPassword": "[parameters('sharePointSetupUserAccountPassword')]"
+						"SqlServerServiceAccountPassword": "[parameters('sqlServerServiceAccountPassword')]"
 					}
 				}
 			}
@@ -1094,30 +1026,12 @@
 									"UserName": "[parameters('adminUserName')]",
 									"Password": "PrivateSettingsRef:AdminPassword"
 								},
-								"SharePointSetupUserAccountcreds": {
-									"UserName": "[parameters('sharePointSetupUserAccountUserName')]",
-									"Password": "PrivateSettingsRef:SharePointSetupUserAccountPassword"
-								},
-								"SharePointFarmAccountcreds": {
-									"UserName": "[parameters('sharePointFarmAccountUserName')]",
-									"Password": "PrivateSettingsRef:SharePointFarmAccountPassword"
-								},
-								"SharePointFarmPassphrasecreds": {
-									"UserName": "ignore",
-									"Password": "PrivateSettingsRef:SharePointFarmPassphrasePassword"
-								},
-								"DatabaseName": "[parameters('configDatabaseName')]",
-								"AdministrationContentDatabaseName": "[parameters('administrationContentDatabaseName')]",
-								"DatabaseServer": "[concat(parameters('sqlVMName'),'.',parameters('domainName'))]",
-								"Configuration": "[concat('{\"roles\":[{\"type\":\"application\",\"properties\":{\"fqdn\":\"',reference(variables('sppublicIPAddressName')).dnsSettings.fqdn,'\",\"port\":',variables('spCentralAdminPort'),'}},{\"type\":\"web\",\"properties\":{\"webApp\":{\"name\":\"spARM\",\"applicationPool\":\"spARM AppPool\",\"applicationPoolAccount\":\"', parameters('sharePointFarmAccountUserName'),'\",\"url\":\"http://',reference(variables('sppublicIPAddressName')).dnsSettings.fqdn,'\",\"port\":80,\"hostHeader\":\"',reference(variables('sppublicIPAddressName')).dnsSettings.fqdn,'\",\"databaseName\":\"',parameters('contentDatabaseName'),'\"},\"site\":{\"name\":\"spARM\",\"template\":\"',parameters('spSiteTemplateName'),'\",\"url\":\"http://',reference(variables('sppublicIPAddressName')).dnsSettings.fqdn,'\",\"ownerAliasDomain\":\"',parameters('domainName'),'\",\"ownerAliasUserName\":\"',parameters('sharePointFarmAccountUserName'),'\",\"secondaryOwnerAliasDomain\":\"',parameters('domainName'),'\",\"secondaryOwnerAliasUserName\":\"',parameters('adminUserName'),'\"}}}],\"configureForHa\":\"False\",\"loadBalancedSetProbePort\":0}')]"
+								"DatabaseServer": "[concat(parameters('sqlVMName'),'.',parameters('domainName'))]"
 							}
 						},
 						"protectedSettings": {
 							"Items": {
-								"AdminPassword": "[parameters('adminPassword')]",
-								"SharePointSetupUserAccountPassword": "[parameters('sharePointSetupUserAccountPassword')]",
-								"SharePointFarmAccountPassword": "[parameters('sharePointFarmAccountPassword')]",
-								"SharePointFarmPassphrasePassword": "[parameters('sharePointFarmPassphrasePassword')]"
+								"AdminPassword": "[parameters('adminPassword')]"
 							}
 						}
 					}
