@@ -911,8 +911,8 @@
 			"apiVersion": "2015-05-01-preview",
 			"location": "[parameters('location')]",
 			"dependsOn": [
-				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlVMName'))]",
-				"Microsoft.Resources/deployments/UpdateVNetDNS"
+				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlVMName'))]"
+				
 			]
 		},
 		{
@@ -924,7 +924,7 @@
 				"[resourceId('Microsoft.Storage/storageAccounts',parameters('newStorageAccountName'))]",
 				"[resourceId('Microsoft.Network/networkInterfaces',variables('spNicName'))]",
 				"[resourceId('Microsoft.Compute/availabilitySets', variables('spAvailabilitySetName'))]",
-				"Microsoft.Resources/deployments/UpdateVNetDNS",
+			
 				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlVMName'),'/extensions/CreateSQLServer')]"
 			],
 			"properties": {
