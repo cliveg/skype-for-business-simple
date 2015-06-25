@@ -833,40 +833,6 @@
 						}
 					]
 				}
-			},
-		},
-		{
-			"name": "UpdateVNetDNS",
-			"type": "Microsoft.Resources/deployments",
-			"apiVersion": "2015-01-01",
-			"dependsOn": [
-				"[concat('Microsoft.Compute/virtualMachines/', parameters('adVMName'),'/extensions/InstallDomainController')]"
-			],
-			"properties": {
-				"mode": "Incremental",
-				"templateLink": {
-					"uri": "[variables('vnetwithDNSTemplateUri')]",
-					"contentVersion": "1.0.0.0"
-				},
-				"parameters": {
-					"location": {
-						"value": "[parameters('location')]"
-					},
-					"virtualNetworkName": {
-						"value": "[parameters('virtualNetworkName')]"
-					},
-					"virtualNetworkAddressRange": {
-						"value": "[parameters('virtualNetworkAddressRange')]"
-					},
-					"subnets": {
-						"value": "[variables('subnets')]"
-					},
-					"DNSServerAddress": {
-						"value": [
-							"[parameters('adNicIPAddress')]"
-						]
-					}
-				}
 			}
 		},
 		{
