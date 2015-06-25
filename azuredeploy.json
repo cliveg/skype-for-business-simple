@@ -906,16 +906,6 @@
 			}
 		},
 		{
-			"type": "Microsoft.Compute/virtualMachines/extensions",
-			"name": "[concat(parameters('sqlVMName'),'/CreateSQLServer')]",
-			"apiVersion": "2015-05-01-preview",
-			"location": "[parameters('location')]",
-			"dependsOn": [
-				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlVMName'))]"
-				
-			]
-		},
-		{
 			"apiVersion": "2015-05-01-preview",
 			"type": "Microsoft.Compute/virtualMachines",
 			"name": "[parameters('spVMName')]",
@@ -923,9 +913,7 @@
 			"dependsOn": [
 				"[resourceId('Microsoft.Storage/storageAccounts',parameters('newStorageAccountName'))]",
 				"[resourceId('Microsoft.Network/networkInterfaces',variables('spNicName'))]",
-				"[resourceId('Microsoft.Compute/availabilitySets', variables('spAvailabilitySetName'))]",
-			
-				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlVMName'),'/extensions/CreateSQLServer')]"
+				"[resourceId('Microsoft.Compute/availabilitySets', variables('spAvailabilitySetName'))]"
 			],
 			"properties": {
 				"hardwareProfile": {
@@ -974,19 +962,7 @@
 						}
 					]
 				}
-			},
-			"resources": [
-				{
-					"type": "Microsoft.Compute/virtualMachines/extensions",
-					"name": "[concat(parameters('spVMName'),'/ConfigureSPServer')]",
-					"apiVersion": "2015-05-01-preview",
-					"location": "[parameters('location')]",
-					"dependsOn": [
-						"[concat('Microsoft.Compute/virtualMachines/', parameters('spVMName'))]"
-					]
-					
-				}
-			]
+			}
 		}
 	]
 }
