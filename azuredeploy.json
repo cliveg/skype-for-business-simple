@@ -939,7 +939,7 @@
 				"protectedSettings": {
 					"Items": {
 						"AdminPassword": "[parameters('adminPassword')]",
-						"SqlServerServiceAccountPassword": "[parameters('sqlServerServiceAccountPassword')]",
+						"SqlServerServiceAccountPassword": "[parameters('sqlServerServiceAccountPassword')]"
 					}
 				}
 			}
