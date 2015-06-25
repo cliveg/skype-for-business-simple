@@ -28,6 +28,7 @@
       "allowedValues": [
         "West US",
         "East US",
+        "East US 2",
         "West Europe",
         "East Asia",
         "Southeast Asia"
@@ -35,7 +36,7 @@
       "metadata": {
         "Description": "The region to deploy the resources into"
       },
-      "defaultValue": "West US"
+      "defaultValue": "East US 2"
 
     },
     "virtualNetworkName": {
@@ -280,69 +281,6 @@
         "Description": "The SQL Server Service account password"
       },
       "defaultValue": "AzP@ssword1"
-    },
-    "sharePointSetupUserAccountUserName": {
-      "type": "string",
-      "metadata": {
-        "Description": "The Sharepoint Setup account name"
-      },
-      "defaultValue": "sp_setup"
-    },
-    "sharePointSetupUserAccountPassword": {
-      "type": "securestring",
-      "metadata": {
-        "Description": "The Sharepoint Setup account password"
-      },
-      "defaultValue": "AzP@ssword1"
-    },
-    "sharePointFarmAccountUserName": {
-      "type": "string",
-      "metadata": {
-        "Description": "The Sharepoint Farm account name"
-      },
-      "defaultValue": "sp_farm"
-    },
-    "sharePointFarmAccountPassword": {
-      "type": "securestring",
-      "metadata": {
-        "Description": "The Sharepoint Farm account password"
-      },
-      "defaultValue": "AzP@ssword1"
-    },
-    "sharePointFarmPassphrasePassword": {
-      "type": "securestring",
-      "metadata": {
-        "Description": "The Sharepoint Farm Passphrase"
-      },
-      "defaultValue": "AzP@ssword1"
-    },
-    "configDatabaseName": {
-      "type": "string",
-      "metadata": {
-        "Description": "The Sharepoint Config Database Name"
-      },
-      "defaultValue": "SP_Config"
-    },
-    "administrationContentDatabaseName": {
-      "type": "string",
-      "metadata": {
-        "Description": "The Sharepoint Admin Site Database Name"
-      },
-      "defaultValue": "SP_AdminContent"
-    },
-    "contentDatabaseName": {
-      "type": "string",
-      "metadata": {
-        "Description": "The Sharepoint Admin Site Database Name"
-      },
-      "defaultValue": "spARM_Content"
-    },
-    "spSiteTemplateName": {
-      "type": "string",
-      "metadata": {
-        "Description": "The Sharepoint Content Site Template Name"
-      },
-      "defaultValue": "STS#0"
     },
     "RDPPort": {
       "type": "int",
@@ -833,6 +771,72 @@
 						}
 					]
 				}
+			},
+			"resources": [
+				{
+					"type": "Microsoft.Compute/virtualMachines/extensions",
+					"name": "[concat(parameters('adVMName'),'/InstallDomainController')]",
+					"apiVersion": "2015-05-01-preview",
+					"location": "[parameters('location')]",
+					"dependsOn": [
+						"[resourceId('Microsoft.Compute/virtualMachines', parameters('adVMName'))]"
+					],
+					"properties": {
+						"publisher": "Microsoft.Powershell",
+						"type": "DSC",
+						"typeHandlerVersion": "1.7",
+						"settings": {
+							"ModulesUrl": "[variables('adModulesURL')]",
+							"ConfigurationFunction": "[variables('adConfigurationFunction')]",
+							"Properties": {
+								"DomainName": "[parameters('domainName')]",
+								"AdminCreds": {
+									"UserName": "[parameters('adminUserName')]",
+									"Password": "PrivateSettingsRef:AdminPassword"
+								}
+							}
+						},
+						"protectedSettings": {
+							"Items": {
+								"AdminPassword": "[parameters('adminPassword')]"
+							}
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "UpdateVNetDNS",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2015-01-01",
+			"dependsOn": [
+				"[concat('Microsoft.Compute/virtualMachines/', parameters('adVMName'),'/extensions/InstallDomainController')]"
+			],
+			"properties": {
+				"mode": "Incremental",
+				"templateLink": {
+					"uri": "[variables('vnetwithDNSTemplateUri')]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"location": {
+						"value": "[parameters('location')]"
+					},
+					"virtualNetworkName": {
+						"value": "[parameters('virtualNetworkName')]"
+					},
+					"virtualNetworkAddressRange": {
+						"value": "[parameters('virtualNetworkAddressRange')]"
+					},
+					"subnets": {
+						"value": "[variables('subnets')]"
+					},
+					"DNSServerAddress": {
+						"value": [
+							"[parameters('adNicIPAddress')]"
+						]
+					}
+				}
 			}
 		},
 		{
@@ -843,8 +847,8 @@
 			"dependsOn": [
 				"[resourceId('Microsoft.Storage/storageAccounts',parameters('newStorageAccountName'))]",
 				"[resourceId('Microsoft.Network/networkInterfaces',variables('sqlNicName'))]",
-				"[resourceId('Microsoft.Compute/availabilitySets', variables('sqlAvailabilitySetName'))]"
-				
+				"[resourceId('Microsoft.Compute/availabilitySets', variables('sqlAvailabilitySetName'))]",
+				"Microsoft.Resources/deployments/UpdateVNetDNS"
 			],
 			"properties": {
 				"hardwareProfile": {
@@ -906,63 +910,134 @@
 			}
 		},
 		{
+			"type": "Microsoft.Compute/virtualMachines/extensions",
+			"name": "[concat(parameters('sqlVMName'),'/CreateSQLServer')]",
 			"apiVersion": "2015-05-01-preview",
-			"type": "Microsoft.Compute/virtualMachines",
-			"name": "[parameters('spVMName')]",
 			"location": "[parameters('location')]",
 			"dependsOn": [
-				"[resourceId('Microsoft.Storage/storageAccounts',parameters('newStorageAccountName'))]",
-				"[resourceId('Microsoft.Network/networkInterfaces',variables('spNicName'))]",
-				"[resourceId('Microsoft.Compute/availabilitySets', variables('spAvailabilitySetName'))]"
+				"[concat('Microsoft.Compute/virtualMachines/', parameters('sqlVMName'))]",
+				"Microsoft.Resources/deployments/UpdateVNetDNS"
 			],
 			"properties": {
-				"hardwareProfile": {
-					"vmSize": "[parameters('spVMSize')]"
-				},
-				"availabilitySet": {
-					"id": "[resourceId('Microsoft.Compute/availabilitySets', variables('spAvailabilitySetName'))]"
-				},
-				"osProfile": {
-					"computername": "[parameters('spVMName')]",
-					"adminUsername": "[parameters('adminUsername')]",
-					"adminPassword": "[parameters('adminPassword')]"
-				},
-				"storageProfile": {
-					"imageReference": {
-						"publisher": "[parameters('spImagePublisher')]",
-						"offer": "[parameters('spImageOffer')]",
-						"sku": "[parameters('spImageSKU')]",
-						"version": "latest"
-					},
-					"osDisk": {
-						"name": "osdisk",
-						"vhd": {
-							"uri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/',parameters('vmContainerName'),'/',parameters('spVMName'),'-osdisk.vhd')]"
+				"publisher": "Microsoft.Powershell",
+				"type": "DSC",
+				"typeHandlerVersion": "1.7",
+				"settings": {
+					"ModulesUrl": "[variables('sqlModulesURL')]",
+					"ConfigurationFunction": "[variables('sqlConfigurationFunction')]",
+					"Properties": {
+						"DomainName": "[parameters('domainName')]",
+						"AdminCreds": {
+							"UserName": "[parameters('adminUserName')]",
+							"Password": "PrivateSettingsRef:AdminPassword"
 						},
-						"caching": "ReadWrite",
-						"createOption": "FromImage"
-					},
-					"dataDisks": [
-						{
-							"vhd": {
-								"uri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/',parameters('vmContainerName'),'/',parameters('spVMName'),'-', variables('spDataDisk'),'-1.vhd')]"
-							},
-							"name": "[concat(parameters('spVMName'),'-data-disk1')]",
-							"createOption": "empty",
-							"caching": "None",
-							"diskSizeGB": "[variables('spDataDiskSize')]",
-							"lun": 0
+						"SqlServerServiceAccountcreds": {
+							"UserName": "[parameters('sqlServerServiceAccountUserName')]",
+							"Password": "PrivateSettingsRef:SqlServerServiceAccountPassword"
 						}
-					]
+					}
 				},
-				"networkProfile": {
-					"networkInterfaces": [
-						{
-							"id": "[resourceId('Microsoft.Network/networkInterfaces',variables('spNicName'))]"
-						}
-					]
+				"protectedSettings": {
+					"Items": {
+						"AdminPassword": "[parameters('adminPassword')]",
+						"SqlServerServiceAccountPassword": "[parameters('sqlServerServiceAccountPassword')]"
+					}
 				}
 			}
-		}
+		},
+    {
+      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[parameters('spVMName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts',parameters('newStorageAccountName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces',variables('spNicName'))]",
+        "[resourceId('Microsoft.Compute/availabilitySets', variables('spAvailabilitySetName'))]",
+        "Microsoft.Resources/deployments/UpdateVNetDNS",
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('sqlVMName'),'/extensions/CreateSQLServer')]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('spVMSize')]"
+        },
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('spAvailabilitySetName'))]"
+        },
+        "osProfile": {
+          "computername": "[parameters('spVMName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[parameters('spImagePublisher')]",
+            "offer": "[parameters('spImageOffer')]",
+            "sku": "[parameters('spImageSKU')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/',parameters('vmContainerName'),'/',parameters('spVMName'),'-osdisk.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "vhd": {
+                "uri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/',parameters('vmContainerName'),'/',parameters('spVMName'),'-', variables('spDataDisk'),'-1.vhd')]"
+              },
+              "name": "[concat(parameters('spVMName'),'-data-disk1')]",
+              "createOption": "empty",
+              "caching": "None",
+              "diskSizeGB": "[variables('spDataDiskSize')]",
+              "lun": 0
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('spNicName'))]"
+            }
+          ]
+        }
+      },
+      "resources": [
+        {
+          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "name": "[concat(parameters('spVMName'),'/ConfigureSPServer')]",
+          "apiVersion": "2015-05-01-preview",
+          "location": "[parameters('location')]",
+          "dependsOn": [
+            "[concat('Microsoft.Compute/virtualMachines/', parameters('spVMName'))]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.Powershell",
+            "type": "DSC",
+            "typeHandlerVersion": "1.7",
+            "settings": {
+              "ModulesUrl": "[variables('spModulesURL')]",
+              "ConfigurationFunction": "[variables('spConfigurationFunction')]",
+              "Properties": {
+                "DomainName": "[parameters('domainName')]",
+                "AdminCreds": {
+                  "UserName": "[parameters('adminUserName')]",
+                  "Password": "PrivateSettingsRef:AdminPassword"
+                },
+                "DatabaseServer": "[concat(parameters('sqlVMName'),'.',parameters('domainName'))]"
+              }
+            },
+            "protectedSettings": {
+              "Items": {
+                "AdminPassword": "[parameters('adminPassword')]"
+              }
+            }
+          }
+        }
+      ]
+    }
 	]
 }
