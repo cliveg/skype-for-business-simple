@@ -843,8 +843,8 @@
 			"dependsOn": [
 				"[resourceId('Microsoft.Storage/storageAccounts',parameters('newStorageAccountName'))]",
 				"[resourceId('Microsoft.Network/networkInterfaces',variables('sqlNicName'))]",
-				"[resourceId('Microsoft.Compute/availabilitySets', variables('sqlAvailabilitySetName'))]",
-				"Microsoft.Resources/deployments/UpdateVNetDNS"
+				"[resourceId('Microsoft.Compute/availabilitySets', variables('sqlAvailabilitySetName'))]"
+				
 			],
 			"properties": {
 				"hardwareProfile": {
