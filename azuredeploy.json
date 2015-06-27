@@ -37,7 +37,6 @@
         "Description": "The region to deploy the resources into"
       },
       "defaultValue": "East US 2"
-
     },
     "virtualNetworkName": {
       "type": "string",
