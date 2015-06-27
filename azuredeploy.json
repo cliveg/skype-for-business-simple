@@ -66,7 +66,7 @@
       },
       "defaultValue": "10.0.1.0/24"
     },
-    "sfbSubnet": {
+    "spSubnet": {
       "type": "string",
       "metadata": {
         "Description": "The address range of the Skype For Business Server subnet created in the new VNET"
@@ -94,7 +94,7 @@
       },
       "defaultValue": "sqlserver"
     },
-    "sfbVMName": {
+    "spVMName": {
       "type": "string",
       "metadata": {
         "Description": "The name of the Skype For Business VM created"
@@ -165,7 +165,7 @@
       },
       "defaultValue": "Standard_DS1"
     },
-    "sfbVMSize": {
+    "spVMSize": {
       "type": "string",
       "allowedValues": [
         "Standard_D1",
@@ -232,21 +232,21 @@
         "Description": "Image SKU"
       }
     },
-    "sfbImagePublisher": {
+    "spImagePublisher": {
       "type": "string",
       "defaultValue": "MicrosoftWindowsServer",
       "metadata": {
         "Description": "Image Publisher"
       }
     },
-    "sfbImageOffer": {
+    "spImageOffer": {
       "type": "string",
       "defaultValue": "WindowsServer",
       "metadata": {
         "Description": "Image Offer"
       }
     },
-    "sfbImageSKU": {
+    "spImageSKU": {
       "type": "string",
       "defaultValue": "2012-R2-Datacenter",
       "metadata": {
@@ -302,12 +302,12 @@
       },
       "defaultValue": "sfbsql"
     },
-    "sfbDNSPrefix": {
+    "spDNSPrefix": {
       "type": "string",
       "metadata": {
         "Description": "The DNS Prefix for the SharePoint Public IP Address"
       },
-      "defaultValue": "sfbsfb"
+      "defaultValue": "sfbsp"
     },
     "AssetLocation": {
       "type": "string",
@@ -321,23 +321,23 @@
 		"LBFE": "LBFE",
 		"LBBE": "LBBE",
 		"RDPNAT": "RDP",
-		"sfbWebNAT": "sfbWeb",
+		"spWebNAT": "sfbWeb",
 		"adSubnetName": "adSubnet",
 		"sqlSubnetName": "sqlSubnet",
-		"sfbSubnetName": "sfbSubnet",
+		"spSubnetName": "sfbSubnet",
 		"adNicName": "adNic",
 		"sqlNicName": "sqlNic",
-		"sfbNicName": "sfbNic",
+		"spNicName": "sfbNic",
 		"VnetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
 		"adSubnetRef": "[concat(variables('VnetID'),'/subnets/',variables('adSubnetName'))]",
 		"sqlSubnetRef": "[concat(variables('VnetID'),'/subnets/',variables('sqlSubnetName'))]",
-		"sfbSubnetRef": "[concat(variables('VnetID'),'/subnets/',variables('sfbSubnetName'))]",
+		"spSubnetRef": "[concat(variables('VnetID'),'/subnets/',variables('spSubnetName'))]",
 		"adNicId": "[resourceId('Microsoft.Network/networkInterfaces',variables('adNicName'))]",
 		"sqlNicId": "[resourceId('Microsoft.Network/networkInterfaces',variables('sqlNicName'))]",
-		"sfbNicId": "[resourceId('Microsoft.Network/networkInterfaces',variables('sfbNicName'))]",
+		"spNicId": "[resourceId('Microsoft.Network/networkInterfaces',variables('spNicName'))]",
 		"adLBName": "adLoadBalancer",
 		"sqlLBName": "sqlLoadBalancer",
-		"sfbLBName": "sfbLoadBalancer",
+		"spLBName": "spLoadBalancer",
 		"adIPConfigID": "[concat(variables('adNicId'),'/ipConfigurations/ipconfig1')]",
 		"adlbID": "[resourceId('Microsoft.Network/loadBalancers',variables('adLBName'))]",
 		"adlbFEConfigID": "[concat(variables('adlbID'),'/frontendIPConfigurations/',variables('LBFE'))]",
@@ -348,25 +348,25 @@
 		"sqllbFEConfigID": "[concat(variables('sqllbID'),'/frontendIPConfigurations/',variables('LBFE'))]",
 		"sqlRDPNATRuleID": "[concat(variables('sqllbID'),'/inboundNatRules/',variables('RDPNAT'))]",
 		"sqlBEAddressPoolID": "[concat(variables('sqllbID'),'/backendAddressPools/',variables('LBBE'))]",
-		"sfbIPConfigID": "[concat(variables('sfbNicId'),'/ipConfigurations/ipconfig1')]",
-		"sfblbID": "[resourceId('Microsoft.Network/loadBalancers',variables('sfbLBName'))]",
-		"sfblbFEConfigID": "[concat(variables('sfblbID'),'/frontendIPConfigurations/',variables('LBFE'))]",
-		"sfbRDPNATRuleID": "[concat(variables('sfblbID'),'/inboundNatRules/',variables('RDPNAT'))]",
-		"sfbWebNATRuleID": "[concat(variables('sfblbID'),'/inboundNatRules/',variables('sfbWebNAT'))]",
-		"sfbBEAddressPoolID": "[concat(variables('sfblbID'),'/backendAddressPools/',variables('LBBE'))]",
+		"spIPConfigID": "[concat(variables('spNicId'),'/ipConfigurations/ipconfig1')]",
+		"splbID": "[resourceId('Microsoft.Network/loadBalancers',variables('spLBName'))]",
+		"splbFEConfigID": "[concat(variables('splbID'),'/frontendIPConfigurations/',variables('LBFE'))]",
+		"spRDPNATRuleID": "[concat(variables('splbID'),'/inboundNatRules/',variables('RDPNAT'))]",
+		"spWebNATRuleID": "[concat(variables('splbID'),'/inboundNatRules/',variables('spWebNAT'))]",
+		"spBEAddressPoolID": "[concat(variables('splbID'),'/backendAddressPools/',variables('LBBE'))]",
 		"adDataDisk": "ADDataDisk",
 		"adDataDiskSize": 127,
 		"sqlDataDisk": "SQLDataDisk",
 		"sqlDataDiskSize": 127,
 		"sqlLogDisk": "SQLLogDisk",
 		"sqlLogDiskSize": 127,
-		"sfbDataDisk": "sfbDataDisk",
-		"sfbDataDiskSize": 127,
+		"spDataDisk": "SPDataDisk",
+		"spDataDiskSize": 127,
 		"adpublicIPAddressName": "adpublicIP",
 		"sqlpublicIPAddressName": "sqlpublicIP",
-		"sfbpublicIPAddressName": "sfbpublicIP",
-		"sfbCentralAdminPort": 8080,
-		"sfbAvailabilitySetName": "sfbAvailabiltySet",
+		"sppublicIPAddressName": "sppublicIP",
+		"spCentralAdminPort": 8080,
+		"spAvailabilitySetName": "spAvailabiltySet",
 		"sqlAvailabilitySetName": "sqlAvailabiltySet",
 		"adAvailabilitySetName": "adAvailabiltySet",
 		"publicIPAddressType": "Dynamic",
@@ -384,9 +384,9 @@
 				}
 			},
 			{
-				"name": "[variables('sfbSubnetName')]",
+				"name": "[variables('spSubnetName')]",
 				"properties": {
-					"addressPrefix": "[parameters('sfbSubnet')]"
+					"addressPrefix": "[parameters('spSubnet')]"
 				}
 			}
 		],
@@ -396,8 +396,8 @@
 		"adConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
 		"sqlModulesURL": "[concat(parameters('AssetLocation'),'/ConfigureSqlServer.ps1.zip')]",
 		"sqlConfigurationFunction": "ConfigureSqlServer.ps1\\ConfigureSqlServer",
-		"sfbModulesURL": "[concat(parameters('AssetLocation'),'/ConfigureSkypeForBusinessServer.ps1.zip')]",
-		"sfbConfigurationFunction": "ConfigureSkypeForBusinessServer.ps1\\ConfigureSkypeForBusinessServer"
+		"spModulesURL": "[concat(parameters('AssetLocation'),'/ConfigureSkypeForBusinessServer.ps1.zip')]",
+		"spConfigurationFunction": "ConfigureSkypeForBusinessServer.ps1\\ConfigureSkypeForBusinessServer"
 	},
 	"resources": [
 		{
@@ -436,18 +436,18 @@
 		{
 			"apiVersion": "2015-05-01-preview",
 			"type": "Microsoft.Network/publicIPAddresses",
-			"name": "[variables('sfbpublicIPAddressName')]",
+			"name": "[variables('sppublicIPAddressName')]",
 			"location": "[parameters('location')]",
 			"properties": {
 				"publicIPAllocationMethod": "[variables('publicIPAddressType')]",
 				"dnsSettings": {
-					"domainNameLabel": "[parameters('sfbDNSPrefix')]"
+					"domainNameLabel": "[parameters('spDNSPrefix')]"
 				}
 			}
 		},
 		{
 			"type": "Microsoft.Compute/availabilitySets",
-			"name": "[variables('sfbAvailabilitySetName')]",
+			"name": "[variables('spAvailabilitySetName')]",
 			"apiVersion": "2015-05-01-preview",
 			"location": "[parameters('location')]"
 		},
@@ -559,11 +559,11 @@
 		},
 		{
 			"apiVersion": "2015-05-01-preview",
-			"name": "[variables('sfbLBName')]",
+			"name": "[variables('spLBName')]",
 			"type": "Microsoft.Network/loadBalancers",
 			"location": "[parameters('location')]",
 			"dependsOn": [
-				"[resourceId('Microsoft.Network/publicIPAddresses',variables('sfbpublicIPAddressName'))]"
+				"[resourceId('Microsoft.Network/publicIPAddresses',variables('sppublicIPAddressName'))]"
 			],
 			"properties": {
 				"frontendIPConfigurations": [
@@ -571,7 +571,7 @@
 						"name": "[variables('LBFE')]",
 						"properties": {
 							"publicIPAddress": {
-								"id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('sfbpublicIPAddressName'))]"
+								"id": "[resourceId('Microsoft.Network/publicIPAddresses',variables('sppublicIPAddressName'))]"
 							}
 						}
 					}
@@ -586,7 +586,7 @@
 						"name": "[variables('RDPNAT')]",
 						"properties": {
 							"frontendIPConfiguration": {
-								"id": "[variables('sfblbFEConfigID')]"
+								"id": "[variables('splbFEConfigID')]"
 							},
 							"protocol": "tcp",
 							"frontendPort": "[parameters('RDPPort')]",
@@ -595,10 +595,10 @@
 						}
 					},
 					{
-						"name": "[variables('sfbWebNAT')]",
+						"name": "[variables('spWebNAT')]",
 						"properties": {
 							"frontendIPConfiguration": {
-								"id": "[variables('sfblbFEConfigID')]"
+								"id": "[variables('splbFEConfigID')]"
 							},
 							"protocol": "tcp",
 							"frontendPort": 80,
@@ -677,13 +677,13 @@
 			}
 		},
 		{
-			"name": "[variables('sfbNicName')]",
+			"name": "[variables('spNicName')]",
 			"type": "Microsoft.Network/networkInterfaces",
 			"location": "[parameters('location')]",
 			"apiVersion": "2015-05-01-preview",
 			"dependsOn": [
 				"[parameters('virtualNetworkName')]",
-				"[concat('Microsoft.Network/loadBalancers/',variables('sfblbName'))]"
+				"[concat('Microsoft.Network/loadBalancers/',variables('splbName'))]"
 			],
 			"properties": {
 				"ipConfigurations": [
@@ -692,19 +692,19 @@
 						"properties": {
 							"privateIPAllocationMethod": "Dynamic",
 							"subnet": {
-								"id": "[variables('sfbSubnetRef')]"
+								"id": "[variables('spSubnetRef')]"
 							},
 							"loadBalancerBackendAddressPools": [
 								{
-									"id": "[variables('sfbBEAddressPoolID')]"
+									"id": "[variables('spBEAddressPoolID')]"
 								}
 							],
 							"loadBalancerInboundNatRules": [
 								{
-									"id": "[variables('sfbRDPNATRuleID')]"
+									"id": "[variables('spRDPNATRuleID')]"
 								},
 								{
-									"id": "[variables('sfbWebNATRuleID')]"
+									"id": "[variables('spWebNATRuleID')]"
 								}
 							]
 						}
@@ -947,38 +947,38 @@
     {
       "apiVersion": "2015-05-01-preview",
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[parameters('sfbVMName')]",
+      "name": "[parameters('spVMName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts',parameters('newStorageAccountName'))]",
-        "[resourceId('Microsoft.Network/networkInterfaces',variables('sfbNicName'))]",
-        "[resourceId('Microsoft.Compute/availabilitySets', variables('sfbAvailabilitySetName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces',variables('spNicName'))]",
+        "[resourceId('Microsoft.Compute/availabilitySets', variables('spAvailabilitySetName'))]",
         "Microsoft.Resources/deployments/UpdateVNetDNS",
         "[concat('Microsoft.Compute/virtualMachines/', parameters('sqlVMName'),'/extensions/CreateSQLServer')]"
       ],
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[parameters('sfbVMSize')]"
+          "vmSize": "[parameters('spVMSize')]"
         },
         "availabilitySet": {
-          "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('sfbAvailabilitySetName'))]"
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('spAvailabilitySetName'))]"
         },
         "osProfile": {
-          "computername": "[parameters('sfbVMName')]",
+          "computername": "[parameters('spVMName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]"
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "[parameters('sfbImagePublisher')]",
-            "offer": "[parameters('sfbImageOffer')]",
-            "sku": "[parameters('sfbImageSKU')]",
+            "publisher": "[parameters('spImagePublisher')]",
+            "offer": "[parameters('spImageOffer')]",
+            "sku": "[parameters('spImageSKU')]",
             "version": "latest"
           },
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/',parameters('vmContainerName'),'/',parameters('sfbVMName'),'-osdisk.vhd')]"
+              "uri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/',parameters('vmContainerName'),'/',parameters('spVMName'),'-osdisk.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -986,12 +986,12 @@
           "dataDisks": [
             {
               "vhd": {
-                "uri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/',parameters('vmContainerName'),'/',parameters('sfbVMName'),'-', variables('sfbDataDisk'),'-1.vhd')]"
+                "uri": "[concat('http://',parameters('newStorageAccountName'),'.blob.core.windows.net/',parameters('vmContainerName'),'/',parameters('spVMName'),'-', variables('spDataDisk'),'-1.vhd')]"
               },
-              "name": "[concat(parameters('sfbVMName'),'-data-disk1')]",
+              "name": "[concat(parameters('spVMName'),'-data-disk1')]",
               "createOption": "empty",
               "caching": "None",
-              "diskSizeGB": "[variables('sfbDataDiskSize')]",
+              "diskSizeGB": "[variables('spDataDiskSize')]",
               "lun": 0
             }
           ]
@@ -999,7 +999,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('sfbNicName'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',variables('spNicName'))]"
             }
           ]
         }
@@ -1007,19 +1007,19 @@
       "resources": [
         {
           "type": "Microsoft.Compute/virtualMachines/extensions",
-          "name": "[concat(parameters('sfbVMName'),'/ConfigureSPServer')]",
+          "name": "[concat(parameters('spVMName'),'/ConfigureSPServer')]",
           "apiVersion": "2015-05-01-preview",
           "location": "[parameters('location')]",
           "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', parameters('sfbVMName'))]"
+            "[concat('Microsoft.Compute/virtualMachines/', parameters('spVMName'))]"
           ],
           "properties": {
             "publisher": "Microsoft.Powershell",
             "type": "DSC",
             "typeHandlerVersion": "1.7",
             "settings": {
-              "ModulesUrl": "[variables('sfbModulesURL')]",
-              "ConfigurationFunction": "[variables('sfbConfigurationFunction')]",
+              "ModulesUrl": "[variables('spModulesURL')]",
+              "ConfigurationFunction": "[variables('spConfigurationFunction')]",
               "Properties": {
                 "DomainName": "[parameters('domainName')]",
                 "AdminCreds": {
