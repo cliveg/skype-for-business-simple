@@ -6,8 +6,7 @@
       "type": "string",
       "metadata": {
         "Description": "The name of the new storage account created to store the VMs disks"
-      },
-      "defaultValue": "sfbsimple"
+      }
     },
     "storageAccountType": {
       "type": "string",
@@ -36,7 +35,7 @@
       "metadata": {
         "Description": "The region to deploy the resources into"
       },
-      "defaultValue": "East US 2"
+      "defaultValue": "West US"
     },
     "virtualNetworkName": {
       "type": "string",
