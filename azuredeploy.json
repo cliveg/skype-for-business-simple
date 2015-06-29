@@ -35,15 +35,7 @@
       "metadata": {
         "Description": "The region to deploy the resources into"
       },
-<<<<<<< HEAD
       "defaultValue": "West US"
-=======
-      "defaultValue": "East US 2"
-
-<<<<<<< HEAD
->>>>>>> parent of 2586cdb... fix region default
-=======
->>>>>>> parent of 2586cdb... fix region default
     },
     "virtualNetworkName": {
       "type": "string",
