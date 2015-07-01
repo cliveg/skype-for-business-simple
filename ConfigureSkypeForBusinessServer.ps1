@@ -381,23 +381,22 @@ configuration ConfigureSkypeForBusinessServer
             Arguments = '/BootstrapCore'
         }
 
-    Script PrepareADforSFB {
+    Script SFBPrepareSchema
+	{
 		GetScript = {
             @{
                 Result = ""
             }
         }
- 
-        SetScript = {
+        TestScript = {
+            $false
+        }
+        SetScript ={
             $secpasswd = ConvertTo-SecureString "AzP@ssword1" -AsPlainText -Force
             $mycreds = New-Object System.Management.Automation.PSCredential ("ucpilot\AzAdmin", $secpasswd)
             $output = Invoke-Command -ScriptBlock { $(whoami) } -ComputerName localhost -Credential $mycreds -Verbose
             Write-Verbose $output
-        }
- 
-        TestScript = {
-            $false
-        }
+		}
 	}
 
 
