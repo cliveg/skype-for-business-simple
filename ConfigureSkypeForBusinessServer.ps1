@@ -23,6 +23,7 @@ configuration ConfigureSkypeForBusinessServer
 
 
     )
+		Enable-CredSSPNTLM -DomainName $DomainName
 
         Write-Verbose "AzureExtensionHandler loaded continuing with configuration"
 
@@ -353,7 +354,7 @@ configuration ConfigureSkypeForBusinessServer
         }
         SetScript ={
             $destination = "C:\WindowsAzure\en_skype_for_business_server_2015_x64_dvd_6622058.iso"
-			$folder = "c:\WindowsAzure\sfbserver\"
+#			$folder = "c:\WindowsAzure\sfbserver\"
 			$mount_params = @{ImagePath = $destination; PassThru = $true; ErrorAction = "Ignore"}
 			$mount = Mount-DiskImage @mount_params
 
@@ -361,13 +362,13 @@ configuration ConfigureSkypeForBusinessServer
 				 $volume = Get-DiskImage -ImagePath $mount.ImagePath | Get-Volume
 				 $source = $volume.DriveLetter + ":\*"
         
-				 Write-Host "Extracting '$destination' to '$folder'..."
-				 xcopy $source $folder /s /e /c
-				 $hide = Dismount-DiskImage @mount_params
-				 Write-Host "Copy complete"
-			}
-			else {
-				 Write-Host "ERROR: Could not mount " $destination " check if file is already in use"
+#				 Write-Host "Extracting '$destination' to '$folder'..."
+#				 xcopy $source $folder /s /e /c
+#				 $hide = Dismount-DiskImage @mount_params
+#				 Write-Host "Copy complete"
+#			}
+#			else {
+#				 Write-Host "ERROR: Could not mount " $destination " check if file is already in use"
 			}
 		}
 	}
@@ -376,35 +377,86 @@ configuration ConfigureSkypeForBusinessServer
         {
             Ensure = "Present"
             Name = "Microsoft Skype for Business Server"
-            Path = "C:\WindowsAzure\sfbserver\Setup\amd64\setup.exe"
+            Path = $volume.DriveLetter + ":\Setup\amd64\setup.exe"
             ProductId = 'C3FF05AC-3EF0-45A8-A7F2-9FD3C0F6DE39'
             Arguments = '/BootstrapCore'
         }
 
-    Script SFBPrepareSchema
-	{
-		GetScript = {
-            @{
-                Result = ""
-            }
-        }
-        TestScript = {
-            $false
-        }
-        SetScript ={
-            $secpasswd = ConvertTo-SecureString "AzP@ssword1" -AsPlainText -Force
-            $mycreds = New-Object System.Management.Automation.PSCredential ("ucpilot\AzAdmin", $secpasswd)
-            $output = Invoke-Command -ScriptBlock { $(whoami) } -ComputerName localhost -Credential $mycreds -Verbose
-            Write-Verbose $output
+		Script SFBPrepareSchema
+		{
+			GetScript = {
+				@{
+					Result = ""
+				}
+			}
+			TestScript = {
+				$false
+			}
+			SetScript ={
+				$secpasswd = ConvertTo-SecureString "AzP@ssword1" -AsPlainText -Force
+				$mycreds = New-Object System.Management.Automation.PSCredential ("ucpilot\AzAdmin", $secpasswd)
+				$output = Invoke-Command -ScriptBlock { whoami > C:\W.txt } -ComputerName localhost -Credential $mycreds -Verbose
+				Write-Verbose $output
+			}
 		}
-	}
 
 
-            LocalConfigurationManager 
-            {
-              ActionAfterReboot = 'StopConfiguration'
-            }
+#            LocalConfigurationManager 
+#            {
+#              ActionAfterReboot = 'StopConfiguration'
+#            }
         }  
 }
 
+function Enable-CredSSPNTLM
+{ 
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$DomainName
+    )
+    
+    # This is needed for the case where NTLM authentication is used
+
+    Write-Verbose 'STARTED:Setting up CredSSP for NTLM'
+   
+    Enable-WSManCredSSP -Role client -DelegateComputer localhost, *.$DomainName -Force -ErrorAction SilentlyContinue
+    Enable-WSManCredSSP -Role server -Force -ErrorAction SilentlyContinue
+
+    if(-not (Test-Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation -ErrorAction SilentlyContinue))
+    {
+        New-Item -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows -Name '\CredentialsDelegation' -ErrorAction SilentlyContinue
+    }
+
+    if( -not (Get-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation -Name 'AllowFreshCredentialsWhenNTLMOnly' -ErrorAction SilentlyContinue))
+    {
+        New-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation -Name 'AllowFreshCredentialsWhenNTLMOnly' -value '1' -PropertyType dword -ErrorAction SilentlyContinue
+    }
+
+    if (-not (Get-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation -Name 'ConcatenateDefaults_AllowFreshNTLMOnly' -ErrorAction SilentlyContinue))
+    {
+        New-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation -Name 'ConcatenateDefaults_AllowFreshNTLMOnly' -value '1' -PropertyType dword -ErrorAction SilentlyContinue
+    }
+
+    if(-not (Test-Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation\AllowFreshCredentialsWhenNTLMOnly -ErrorAction SilentlyContinue))
+    {
+        New-Item -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation -Name 'AllowFreshCredentialsWhenNTLMOnly' -ErrorAction SilentlyContinue
+    }
+
+    if (-not (Get-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation\AllowFreshCredentialsWhenNTLMOnly -Name '1' -ErrorAction SilentlyContinue))
+    {
+        New-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation\AllowFreshCredentialsWhenNTLMOnly -Name '1' -value "wsman/$env:COMPUTERNAME" -PropertyType string -ErrorAction SilentlyContinue
+    }
+
+    if (-not (Get-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation\AllowFreshCredentialsWhenNTLMOnly -Name '2' -ErrorAction SilentlyContinue))
+    {
+        New-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation\AllowFreshCredentialsWhenNTLMOnly -Name '2' -value "wsman/localhost" -PropertyType string -ErrorAction SilentlyContinue
+    }
+
+    if (-not (Get-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation\AllowFreshCredentialsWhenNTLMOnly -Name '3' -ErrorAction SilentlyContinue))
+    {
+        New-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation\AllowFreshCredentialsWhenNTLMOnly -Name '3' -value "wsman/*.$DomainName" -PropertyType string -ErrorAction SilentlyContinue
+    }
+
+    Write-Verbose "DONE:Setting up CredSSP for NTLM"
+}
 
