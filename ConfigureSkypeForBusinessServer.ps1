@@ -354,13 +354,14 @@ configuration ConfigureSkypeForBusinessServer
         }
         SetScript ={
             $destination = "C:\WindowsAzure\en_skype_for_business_server_2015_x64_dvd_6622058.iso"
+			$mount =  Mount-DiskImage -ImagePath $destination
 #			$folder = "c:\WindowsAzure\sfbserver\"
-			$mount_params = @{ImagePath = $destination; PassThru = $true; ErrorAction = "Ignore"}
-			$mount = Mount-DiskImage @mount_params
+			#$mount_params = @{ImagePath = $destination; PassThru = $true; ErrorAction = "Ignore"}
+			#$mount = Mount-DiskImage @mount_params
 
-			 if($mount) {
-				 $volume = Get-DiskImage -ImagePath $mount.ImagePath | Get-Volume
-				 $source = $volume.DriveLetter + ":\*"
+			# if($mount) {
+			#	 $volume = Get-DiskImage -ImagePath $mount.ImagePath | Get-Volume
+			#	 $source = $volume.DriveLetter + ":\*"
         
 #				 Write-Host "Extracting '$destination' to '$folder'..."
 #				 xcopy $source $folder /s /e /c
@@ -369,7 +370,7 @@ configuration ConfigureSkypeForBusinessServer
 #			}
 #			else {
 #				 Write-Host "ERROR: Could not mount " $destination " check if file is already in use"
-			}
+			#}
 		}
 	}
 
@@ -377,7 +378,7 @@ configuration ConfigureSkypeForBusinessServer
         {
             Ensure = "Present"
             Name = "Microsoft Skype for Business Server"
-            Path = $volume.DriveLetter + ":\Setup\amd64\setup.exe"
+            Path = (Get-DiskImage -ImagePath $destination | Get-Volume).DriveLetter + ":\Setup\amd64\setup.exe"
             ProductId = 'C3FF05AC-3EF0-45A8-A7F2-9FD3C0F6DE39'
             Arguments = '/BootstrapCore'
         }
@@ -392,12 +393,32 @@ configuration ConfigureSkypeForBusinessServer
 			TestScript = {
 				$false
 			}
-			SetScript ={
-				$secpasswd = ConvertTo-SecureString "AzP@ssword1" -AsPlainText -Force
-				$mycreds = New-Object System.Management.Automation.PSCredential ("ucpilot\AzAdmin", $secpasswd)
-				$output = Invoke-Command -ScriptBlock { whoami > C:\W.txt } -ComputerName localhost -Credential $mycreds -Verbose
-				Write-Verbose $output
-			}
+            SetScript = ([String]{            
+                $password = ConvertTo-SecureString 'AzP@ssword1' -AsPlainText -Force
+                $credential = New-Object System.Management.Automation.PSCredential "ucpilot\AzAdmin",$password
+                Invoke-Command {
+			        whoami > c:\w.txt 
+			        Import-Module "C:\Program Files\Common Files\Skype for Business Server 2015\Modules\SkypeForBusiness\SkypeForBusiness.psd1"
+                    Import-Module ActiveDirectory
+			        $Domain = Get-ADDomain
+                    $Computer = $env:computername + '.'+$Domain.DNSRoot
+                    $SQLServer = "SQLServer" + '.'+$Domain.DNSRoot
+                    $DC = Get-ADDomainController
+                    $Sbase = "CN=Configuration,"+$Domain.DistinguishedName
+
+                    Install-CSAdServerSchema -Confirm:$false -Verbose -Report "C:\WindowsAzure\Logs\Install-CSAdServerSchema.html"
+                    Enable-CSAdForest  -Verbose -Confirm:$false -Report "C:\WindowsAzure\Logs\Enable-CSAdForest.html"
+                    Enable-CSAdDomain -Verbose -Confirm:$false -Report "C:\WindowsAzure\Logs\Enable-CSAdDomain.html"
+                    Add-ADGroupMember -Identity CSAdministrator -Members "Domain Admins"
+                    Add-ADGroupMember -Identity RTCUniversalServerAdmins -Members "Domain Admins"
+					Install-CsDatabase -CentralManagementDatabase -SqlServerFqdn $DatabasedServer 
+					# -SqlInstanceName rtc
+					Set-CsConfigurationStoreLocation -SqlServerFqdn $DatabasedServer 
+					# Set-CsConfigurationStoreLocation -SqlServerFqdn $Computer -SqlInstanceName rtc
+
+				} -ComputerName sfbserver1.ucpilot.com -EnableNetworkAccess -Credential $credential -Authentication CredSSP
+            })
+			
 		}
 
 
