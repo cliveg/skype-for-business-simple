@@ -336,49 +336,21 @@ configuration ConfigureSkypeForBusinessServer
             Test-Path "C:\WindowsAzure\en_skype_for_business_server_2015_x64_dvd_6622058.iso"
         }
         SetScript ={
-            $source = "http://sfbfiles.blob.core.windows.net/software/en_skype_for_business_server_2015_x64_dvd_6622058.iso"
-            $destination = "C:\WindowsAzure\en_skype_for_business_server_2015_x64_dvd_6622058.iso"
+            $source = "http://care.dlservice.microsoft.com/dl/download/6/6/5/665C9DD5-9E1E-4494-8709-4A3FFC35C6A0/SfB-E-9319.0-enUS.ISO"
+            $destination = "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
             Invoke-WebRequest $source -OutFile $destination
+			# Mount ISO
+            $destination = "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
+			$mount =  Mount-DiskImage -ImagePath $destination
         }
     }
 
-    Script ExtractSkyepForBusinessISO
-	{
-		GetScript = {
-            @{
-                Result = ""
-            }
-        }
-        TestScript = {
-            $false
-        }
-        SetScript ={
-            $destination = "C:\WindowsAzure\en_skype_for_business_server_2015_x64_dvd_6622058.iso"
-			$mount =  Mount-DiskImage -ImagePath $destination
-#			$folder = "c:\WindowsAzure\sfbserver\"
-			#$mount_params = @{ImagePath = $destination; PassThru = $true; ErrorAction = "Ignore"}
-			#$mount = Mount-DiskImage @mount_params
-
-			# if($mount) {
-			#	 $volume = Get-DiskImage -ImagePath $mount.ImagePath | Get-Volume
-			#	 $source = $volume.DriveLetter + ":\*"
-        
-#				 Write-Host "Extracting '$destination' to '$folder'..."
-#				 xcopy $source $folder /s /e /c
-#				 $hide = Dismount-DiskImage @mount_params
-#				 Write-Host "Copy complete"
-#			}
-#			else {
-#				 Write-Host "ERROR: Could not mount " $destination " check if file is already in use"
-			#}
-		}
-	}
 
     Package SkypeForBusiness_Core_Installation
         {
             Ensure = "Present"
             Name = "Microsoft Skype for Business Server"
-            Path = (Get-DiskImage -ImagePath $destination | Get-Volume).DriveLetter + ":\Setup\amd64\setup.exe"
+            Path = (Get-DiskImage -ImagePath "SfB-E-9319.0-enUS.ISO" | Get-Volume).DriveLetter + ":\Setup\amd64\setup.exe"
             ProductId = 'C3FF05AC-3EF0-45A8-A7F2-9FD3C0F6DE39'
             Arguments = '/BootstrapCore'
         }
