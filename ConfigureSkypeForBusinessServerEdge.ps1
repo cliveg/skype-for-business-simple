@@ -29,12 +29,43 @@ configuration ConfigureSkypeForBusinessServerEdge
 
         [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
 
-        Import-DscResource -ModuleName xComputerManagement, xActiveDirectory, xDisk, xCredSSP, cDisk, xNetworking
-		Import-DSCResource -Module xSystemSecurity -Name xIEEsc
+        Import-DscResource -ModuleName xComputerManagement, xActiveDirectory, xDisk, xCredSSP, cDisk, xNetworking, xSystemSecurity
+
 
         Node localhost
         {
-            
+            Script ConfigureCPU
+			{
+				GetScript = {
+					@{
+						Result = ""
+					}
+				}
+				TestScript = {
+					$false
+				}
+				SetScript ={
+
+				  # Set PowerPlan to "High Performance"
+					$guid = (Get-WmiObject -Class Win32_PowerPlan -Namespace root\cimv2\power -Filter "ElementName='High Performance'").InstanceID.ToString()
+					$regex = [regex]"{(.*?)}$"
+					$plan = $regex.Match($guid).groups[1].value
+					powercfg -S $plan
+				}
+			}
+			xIEEsc EnableIEEscAdmin
+			{
+				IsEnabled = $True
+				UserRole  = "Administrators"
+			}
+
+			xIEEsc EnableIEEscUser
+			{
+				IsEnabled = $False
+				UserRole  = "Users"
+			}
+
+
             xWaitforDisk Disk2
             {
                 DiskNumber = 2
@@ -87,37 +118,6 @@ configuration ConfigureSkypeForBusinessServerEdge
 
 
 #New
-	Script ConfigureCPU
-	{
-		GetScript = {
-            @{
-                Result = ""
-            }
-        }
-        TestScript = {
-            $false
-        }
-        SetScript ={
-
-		  # Set PowerPlan to "High Performance"
-			$guid = (Get-WmiObject -Class Win32_PowerPlan -Namespace root\cimv2\power -Filter "ElementName='High Performance'").InstanceID.ToString()
-			$regex = [regex]"{(.*?)}$"
-			$plan = $regex.Match($guid).groups[1].value
-			powercfg -S $plan
-		}
-	}
-        xIEEsc EnableIEEscAdmin
-        {
-            IsEnabled = $True
-            UserRole  = "Administrators"
-        }
-
-        xIEEsc EnableIEEscUser
-        {
-            IsEnabled = $False
-            UserRole  = "Users"
-        }
-
    #script block to download apps and install them
 
 	Script DownloadAndExtractHotFixKB2982006

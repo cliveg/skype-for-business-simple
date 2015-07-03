@@ -18,6 +18,38 @@
 
     Node localhost
     {
+
+        Script ConfigureCPU
+		{
+			GetScript = {
+				@{
+					Result = ""
+				}
+			}
+			TestScript = {
+				$false
+			}
+			SetScript ={
+
+				# Set PowerPlan to "High Performance"
+				$guid = (Get-WmiObject -Class Win32_PowerPlan -Namespace root\cimv2\power -Filter "ElementName='High Performance'").InstanceID.ToString()
+				$regex = [regex]"{(.*?)}$"
+				$plan = $regex.Match($guid).groups[1].value
+				powercfg -S $plan
+			}
+		}
+		xIEEsc EnableIEEscAdmin
+		{
+			IsEnabled = $True
+			UserRole  = "Administrators"
+		}
+
+		xIEEsc EnableIEEscUser
+		{
+			IsEnabled = $False
+			UserRole  = "Users"
+		}
+
         WindowsFeature DNS 
         { 
             Ensure = "Present" 
