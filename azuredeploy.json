@@ -162,7 +162,7 @@
       "metadata": {
         "Description": "The size of the SQL VM Created"
       },
-      "defaultValue": "Standard_DS1"
+      "defaultValue": "Standard_DS2"
     },
     "spVMSize": {
       "type": "string",
@@ -187,7 +187,7 @@
       "metadata": {
         "Description": "The size of the Skype for Business VM Created"
       },
-      "defaultValue": "Standard_DS1"
+      "defaultValue": "Standard_DS2"
     },
     "adImagePublisher": {
       "type": "string",
