@@ -267,6 +267,17 @@ configuration ConfigureSkypeForBusinessServer
 			powercfg -S $plan
 		}
 	}
+        xIEEsc EnableIEEscAdmin
+        {
+            IsEnabled = $True
+            UserRole  = "Administrators"
+        }
+
+        xIEEsc EnableIEEscUser
+        {
+            IsEnabled = $False
+            UserRole  = "Users"
+        }
 
    #script block to download apps and install them
     Script DownloadSilverlight
@@ -277,7 +288,7 @@ configuration ConfigureSkypeForBusinessServer
             }
         }
         TestScript = {
-            Test-Path "C:\WindowsAzure\wpilauncher.exe"
+            Test-Path "C:\WindowsAzure\Silverlight_x64.exe"
         }
         SetScript ={
             $source = "http://download.microsoft.com/download/F/8/C/F8C0EACB-92D0-4722-9B18-965DD2A681E9/30514.00/Silverlight_x64.exe"
@@ -333,7 +344,7 @@ configuration ConfigureSkypeForBusinessServer
             }
         }
         TestScript = {
-            Test-Path "C:\WindowsAzure\en_skype_for_business_server_2015_x64_dvd_6622058.iso"
+            Test-Path "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
         }
         SetScript ={
             $source = "http://care.dlservice.microsoft.com/dl/download/6/6/5/665C9DD5-9E1E-4494-8709-4A3FFC35C6A0/SfB-E-9319.0-enUS.ISO"
@@ -350,7 +361,7 @@ configuration ConfigureSkypeForBusinessServer
         {
             Ensure = "Present"
             Name = "Microsoft Skype for Business Server"
-            Path = (Get-DiskImage -ImagePath "SfB-E-9319.0-enUS.ISO" | Get-Volume).DriveLetter + ":\Setup\amd64\setup.exe"
+            Path = (Get-DiskImage -ImagePath "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO" | Get-Volume).DriveLetter + ":\Setup\amd64\setup.exe"
             ProductId = 'C3FF05AC-3EF0-45A8-A7F2-9FD3C0F6DE39'
             Arguments = '/BootstrapCore'
         }
