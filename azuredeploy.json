@@ -313,7 +313,7 @@
       "metadata": {
         "Description": "The location of resources such as templates and DSC modules that the script is dependent"
       },
-      "defaultValue": "https://raw.githubusercontent.com/cliveg/skype-for-business-simple/test"
+      "defaultValue": "https://raw.githubusercontent.com/cliveg/skype-for-business-simple/master"
     }
   },
 	"variables": {
