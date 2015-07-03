@@ -394,9 +394,9 @@ configuration ConfigureSkypeForBusinessServer
                     Enable-CSAdDomain -Verbose -Confirm:$false -Report "C:\WindowsAzure\Logs\Enable-CSAdDomain.html"
                     Add-ADGroupMember -Identity CSAdministrator -Members "Domain Admins"
                     Add-ADGroupMember -Identity RTCUniversalServerAdmins -Members "Domain Admins"
-					Install-CsDatabase -CentralManagementDatabase -SqlServerFqdn $DatabaseServer 
+					Install-CsDatabase -CentralManagementDatabase -SqlServerFqdn $SQLServer 
 					# -SqlInstanceName rtc
-					Set-CsConfigurationStoreLocation -SqlServerFqdn $DatabaseServer 
+					Set-CsConfigurationStoreLocation -SqlServerFqdn $SQLServer 
 					# Set-CsConfigurationStoreLocation -SqlServerFqdn $Computer -SqlInstanceName rtc
 
 				} -ComputerName sfbserver1.ucpilot.com -EnableNetworkAccess -Credential $credential -Authentication CredSSP
