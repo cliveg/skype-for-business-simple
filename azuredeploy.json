@@ -5,7 +5,7 @@
     "newStorageAccountName": {
       "type": "string",
       "metadata": {
-        "Description": "The name of the new storage account created to store the VMs disks"
+        "Description": "The name of the new storage account created to store the VMs  disks"
       }
     },
     "storageAccountType": {

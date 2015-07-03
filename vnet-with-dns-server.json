@@ -12,7 +12,7 @@
 				"Southeast Asia"
 			],
 			"metadata": {
-				"Description": "The region to deploy the resources into"
+				"Description": "The region to deploy the resources into" 
 			}
 		},
 		"virtualNetworkName": {
