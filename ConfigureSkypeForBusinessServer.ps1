@@ -41,7 +41,9 @@ configuration ConfigureSkypeForBusinessServer
         # Copy-Item $ModuleFilePath $ModuleFolder -Force
 
         Import-DscResource -ModuleName xComputerManagement, xActiveDirectory, xDisk, xCredSSP, cDisk, xNetworking
-    
+		Import-DSCResource -Module MSFT_xSystemSecurity -Name xIEEsc
+
+
         Node localhost
         {
             
