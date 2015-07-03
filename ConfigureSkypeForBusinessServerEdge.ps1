@@ -29,9 +29,7 @@ configuration ConfigureSkypeForBusinessServerEdge
 
         [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
 
-        Import-DscResource -ModuleName xComputerManagement, xActiveDirectory, xDisk, xCredSSP, cDisk, xNetworking
-		Import-DSCResource -Module xSystemSecurity -Name xIEEsc
-
+        Import-DscResource -ModuleName xComputerManagement, xActiveDirectory, xDisk, xCredSSP, cDisk, xNetworking, xIEEsc
 
         Node localhost
         {
