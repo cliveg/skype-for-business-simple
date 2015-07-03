@@ -41,7 +41,7 @@ configuration ConfigureSkypeForBusinessServer
         # Copy-Item $ModuleFilePath $ModuleFolder -Force
 
         Import-DscResource -ModuleName xComputerManagement, xActiveDirectory, xDisk, xCredSSP, cDisk, xNetworking
-		Import-DSCResource -Module MSFT_xSystemSecurity -Name xIEEsc
+		Import-DSCResource -Module xSystemSecurity -Name xIEEsc
 
 
         Node localhost
@@ -387,7 +387,7 @@ configuration ConfigureSkypeForBusinessServer
                     Import-Module ActiveDirectory
 			        $Domain = Get-ADDomain
                     $Computer = $env:computername + '.'+$Domain.DNSRoot
-                    $SQLServer = "SQLServer" + '.'+$Domain.DNSRoot
+                    #$SQLServer = "SQLServer" + '.'+$Domain.DNSRoot
                     $DC = Get-ADDomainController
                     $Sbase = "CN=Configuration,"+$Domain.DistinguishedName
 
@@ -396,9 +396,9 @@ configuration ConfigureSkypeForBusinessServer
                     Enable-CSAdDomain -Verbose -Confirm:$false -Report "C:\WindowsAzure\Logs\Enable-CSAdDomain.html"
                     Add-ADGroupMember -Identity CSAdministrator -Members "Domain Admins"
                     Add-ADGroupMember -Identity RTCUniversalServerAdmins -Members "Domain Admins"
-					Install-CsDatabase -CentralManagementDatabase -SqlServerFqdn $SQLServer 
+					Install-CsDatabase -CentralManagementDatabase -SqlServerFqdn $using:DatabaseServer 
 					# -SqlInstanceName rtc
-					Set-CsConfigurationStoreLocation -SqlServerFqdn $SQLServer 
+					Set-CsConfigurationStoreLocation -SqlServerFqdn $using:DatabaseServer 
 					# Set-CsConfigurationStoreLocation -SqlServerFqdn $Computer -SqlInstanceName rtc
 
 				} -ComputerName sfbserver1.ucpilot.com -EnableNetworkAccess -Credential $credential -Authentication CredSSP
