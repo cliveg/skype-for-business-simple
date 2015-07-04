@@ -1,7 +1,12 @@
 # Create a new Skype for Business Pool with 3 VMs
 
 This template creates three new Azure VMs, each with a public IP address and load balancer and a VNet, it configures one VM to be an AD DC for a new Forest and Domain, one with SQL Server domain joined and a third VM with a Skype for Business Pool, all VMs have public facing RDP
-
+<br>
+<b>PowerShell Deployment</b><br>
+$Name = Read-Host "Please enter a unique prefix for your deployment e.g. 1"<br>
+New-AzureResourceGroup -DeploymentName 'AzureDeploy' -Location 'WestUS' -TemplateUri 'https://raw.githubusercontent.com/cliveg/skype-for-business-simple
+/master/azuredeploy.json' -newStorageAccountName sfb-sa-$Name -adDNSPrefix sfb-dns-ad-$Name -sqlDNSPrefix sfb-dns-sql-$Name -spDNSPrefix sfb-dns-fe-$Name -Name sfb-$name -Verbose
+<br>
 Click the button below to deploy
 
 
