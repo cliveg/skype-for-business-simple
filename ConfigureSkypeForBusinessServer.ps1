@@ -395,13 +395,6 @@ configuration ConfigureSkypeForBusinessServer
             })
 			
 		}
-
-
-#            LocalConfigurationManager 
-#            {
-#              ActionAfterReboot = 'StopConfiguration'
-#            }
-        }  
 			xIEEsc EnableIEEscAdmin
 			{
 				IsEnabled = $false
@@ -413,6 +406,13 @@ configuration ConfigureSkypeForBusinessServer
 				IsEnabled = $False
 				UserRole  = "Users"
 			}
+
+
+#            LocalConfigurationManager 
+#            {
+#              ActionAfterReboot = 'StopConfiguration'
+#            }
+        }  
 
 
 }
