@@ -40,7 +40,7 @@
 		}
 		xIEEsc EnableIEEscAdmin
 		{
-			IsEnabled = $True
+			IsEnabled = $False
 			UserRole  = "Administrators"
 		}
 

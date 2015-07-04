@@ -29,20 +29,8 @@ configuration ConfigureSkypeForBusinessServer
 
         [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
 
-
-        # Install Skype For Business Module
-        $ModuleFilePath="$PSScriptRoot\SkypeForBusiness.psm1"
-        $ModuleName = "SharepointServer"
-        $PSModulePath = $Env:PSModulePath -split ";" | Select -Index 1
-        $ModuleFolder = "$PSModulePath\$ModuleName"
-        if (-not (Test-Path  $ModuleFolder -PathType Container)) {
-            # mkdir $ModuleFolder
-        }
-        # Copy-Item $ModuleFilePath $ModuleFolder -Force
-
         Import-DscResource -ModuleName xComputerManagement, xActiveDirectory, xDisk, xCredSSP, cDisk, xNetworking, xSystemSecurity
 		#Import-DSCResource -Module xSystemSecurity -Name xIEEsc
-
 
         Node localhost
         {
@@ -346,15 +334,17 @@ configuration ConfigureSkypeForBusinessServer
             }
         }
         TestScript = {
-            Test-Path "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
+            $false
         }
         SetScript ={
             $source = "http://care.dlservice.microsoft.com/dl/download/6/6/5/665C9DD5-9E1E-4494-8709-4A3FFC35C6A0/SfB-E-9319.0-enUS.ISO"
             $destination = "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
-            Invoke-WebRequest $source -OutFile $destination
-			# Mount ISO
-            $destination = "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
-			$mount =  Mount-DiskImage -ImagePath $destination
+            If (Test-Path "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO" -eq $false) {
+				Invoke-WebRequest $source -OutFile $destination
+				# Mount ISO
+				$destination = "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
+				$mount =  Mount-DiskImage -ImagePath $destination
+			}
         }
     }
 
@@ -397,9 +387,9 @@ configuration ConfigureSkypeForBusinessServer
                     Enable-CSAdDomain -Verbose -Confirm:$false -Report "C:\WindowsAzure\Logs\Enable-CSAdDomain.html"
                     Add-ADGroupMember -Identity CSAdministrator -Members "Domain Admins"
                     Add-ADGroupMember -Identity RTCUniversalServerAdmins -Members "Domain Admins"
-					Install-CsDatabase -CentralManagementDatabase -SqlServerFqdn $using:DatabaseServer 
+					Install-CsDatabase -CentralManagementDatabase -SqlServerFqdn sqlserver.ucpilot.com
 					# -SqlInstanceName rtc
-					Set-CsConfigurationStoreLocation -SqlServerFqdn $using:DatabaseServer 
+					Set-CsConfigurationStoreLocation -SqlServerFqdn sqlserver.ucpilot.com
 					# Set-CsConfigurationStoreLocation -SqlServerFqdn $Computer -SqlInstanceName rtc
 
 				} -ComputerName sfbserver1.ucpilot.com -EnableNetworkAccess -Credential $credential -Authentication CredSSP
