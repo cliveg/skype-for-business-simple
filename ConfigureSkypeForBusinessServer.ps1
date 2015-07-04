@@ -67,7 +67,7 @@ configuration ConfigureSkypeForBusinessServer
 			}
 			xIEEsc EnableIEEscAdmin
 			{
-				IsEnabled = $True
+				IsEnabled = $false
 				UserRole  = "Administrators"
 			}
 
