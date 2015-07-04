@@ -52,18 +52,14 @@ configuration ConfigureSkypeForBusinessServer
 					powercfg -S $plan
 				}
 			}
-			xIEEsc EnableIEEscAdmin
-			{
-				IsEnabled = $false
-				UserRole  = "Administrators"
-			}
-
-			xIEEsc EnableIEEscUser
-			{
-				IsEnabled = $False
-				UserRole  = "Users"
-			}
-
+#Registry RegistryExample
+#{
+#    Ensure = "Present"  # You can also set Ensure to "Absent"
+#    Key = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\Security"
+#    ValueName = "DisableSecuritySettingsCheck"
+#    ValueType = "Dword"
+#    ValueData = 1
+#}
 
             xWaitforDisk Disk2
             {
@@ -320,6 +316,38 @@ configuration ConfigureSkypeForBusinessServer
     }
 
 
+	Script DownloadAndExtractHotFixKB2982006
+    {
+        GetScript = {
+            @{
+                Result = "HotFix KB2982006"
+            }
+        }
+        TestScript = {
+            Test-Path "C:\WindowsAzure\478232_intl_x64_zip.exe"
+        }
+        SetScript ={
+            $source = "http://hotfixv4.microsoft.com/Windows 8.1/Windows Server 2012 R2/sp1/Fix514814/9600/free/478232_intl_x64_zip.exe"
+            $destination = "C:\WindowsAzure\478232_intl_x64_zip.exe"
+            Invoke-WebRequest $source -OutFile $destination
+
+			Add-Type -assembly "system.io.compression.filesystem"
+			[io.compression.zipfile]::ExtractToDirectory($destination, "C:\WindowsAzure\")
+        }
+    }
+
+
+		xHotfix HotfixInstall 
+		{ 
+			Ensure = "Present" 
+#			URI = "http://hotfixv4.microsoft.com/Windows%208.1/Windows%20Server%202012%20R2/sp1/Fix514814/9600/free/478232_intl_x64_zip.exe" 
+            Path = "C:\WindowsAzure\Windows8.1-KB2982006-x64.msu"
+			Id = "KB2982006" 
+			Log = "c:\WindowsAzure\logs\hotfix-KB2982006.etl"
+
+		}  
+
+
     Package SkypeForBusiness_Core_Installation
         {
             Ensure = "Present"
@@ -367,13 +395,6 @@ configuration ConfigureSkypeForBusinessServer
             })
 			
 		}
-#			xHotfix HotfixInstall 
-#			{ 
-#				Ensure = "Present" 
-#				URI = "http://hotfixv4.microsoft.com/Windows 8.1/Windows Server 2012 R2/sp1/Fix514814/9600/free/478232_intl_x64_zip.exe" 
-#				Id = "KB2982006" 
-#			}  
-
 
 
 #            LocalConfigurationManager 
@@ -381,6 +402,19 @@ configuration ConfigureSkypeForBusinessServer
 #              ActionAfterReboot = 'StopConfiguration'
 #            }
         }  
+			xIEEsc EnableIEEscAdmin
+			{
+				IsEnabled = $false
+				UserRole  = "Administrators"
+			}
+
+			xIEEsc EnableIEEscUser
+			{
+				IsEnabled = $False
+				UserRole  = "Users"
+			}
+
+
 }
 
 function Enable-CredSSPNTLM
