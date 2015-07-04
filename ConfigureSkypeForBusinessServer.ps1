@@ -29,8 +29,7 @@ configuration ConfigureSkypeForBusinessServer
 
         [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
 
-        Import-DscResource -ModuleName xComputerManagement, xActiveDirectory, xDisk, xCredSSP, cDisk, xNetworking, xSystemSecurity
-		#Import-DSCResource -Module xSystemSecurity -Name xIEEsc
+        Import-DscResource -ModuleName xComputerManagement, xActiveDirectory, xDisk, xCredSSP, cDisk, xNetworking, xSystemSecurity, xWindowsUpdate
 
         Node localhost
         {
@@ -53,6 +52,12 @@ configuration ConfigureSkypeForBusinessServer
 					powercfg -S $plan
 				}
 			}
+			xHotfix HotfixInstall 
+			{ 
+				Ensure = "Present" 
+				URI = "http://hotfixv4.microsoft.com/Windows 8.1/Windows Server 2012 R2/sp1/Fix514814/9600/free/478232_intl_x64_zip.exe" 
+				Id = "KB2982006" 
+			}  
 			xIEEsc EnableIEEscAdmin
 			{
 				IsEnabled = $false
@@ -296,34 +301,6 @@ configuration ConfigureSkypeForBusinessServer
             Arguments = '/q'
         }
 
-	Script DownloadAndExtractHotFixKB2982006
-    {
-        GetScript = {
-            @{
-                Result = "HotFix KB2982006"
-            }
-        }
-        TestScript = {
-            Test-Path "C:\WindowsAzure\478232_intl_x64_zip.exe"
-        }
-        SetScript ={
-            $source = "http://hotfixv4.microsoft.com/Windows 8.1/Windows Server 2012 R2/sp1/Fix514814/9600/free/478232_intl_x64_zip.exe"
-            $destination = "C:\WindowsAzure\478232_intl_x64_zip.exe"
-            Invoke-WebRequest $source -OutFile $destination
-
-			Add-Type -assembly "system.io.compression.filesystem"
-			[io.compression.zipfile]::ExtractToDirectory($destination, "C:\WindowsAzure\")
-        }
-    }
-
-    Package InstallHotFixKB2982006
-        {
-            Ensure = "Present"
-            Name = "Hotfix KB2982006"
-            Path = "c:\windows\system32\wusa.exe"
-            ProductId = ''
-            Arguments = 'C:\WindowsAzure\Windows8.1-KB2982006-x64.msu /quiet /norestart'
-        }
 
 
     Script DownloadSkypeForBusinessISO
@@ -387,9 +364,9 @@ configuration ConfigureSkypeForBusinessServer
                     Enable-CSAdDomain -Verbose -Confirm:$false -Report "C:\WindowsAzure\Logs\Enable-CSAdDomain.html"
                     Add-ADGroupMember -Identity CSAdministrator -Members "Domain Admins"
                     Add-ADGroupMember -Identity RTCUniversalServerAdmins -Members "Domain Admins"
-					Install-CsDatabase -CentralManagementDatabase -SqlServerFqdn sqlserver.ucpilot.com
+					Install-CsDatabase -CentralManagementDatabase -SqlServerFqdn 'sqlserver.ucpilot.com' -Verbose -Report "C:\WindowsAzure\Logs\Install-CsDatabase.html"
 					# -SqlInstanceName rtc
-					Set-CsConfigurationStoreLocation -SqlServerFqdn sqlserver.ucpilot.com
+					Set-CsConfigurationStoreLocation -SqlServerFqdn 'sqlserver.ucpilot.com' -Verbose -Report "C:\WindowsAzure\Logs\Set-CsConfigurationStoreLocation.html"
 					# Set-CsConfigurationStoreLocation -SqlServerFqdn $Computer -SqlInstanceName rtc
 
 				} -ComputerName sfbserver1.ucpilot.com -EnableNetworkAccess -Credential $credential -Authentication CredSSP
@@ -457,3 +434,5 @@ function Enable-CredSSPNTLM
     Write-Verbose "DONE:Setting up CredSSP for NTLM"
 }
 
+#ConfigureSkypeForBusinessServer -DomainName 'ucpilot.com' -DatabaseServer 'sqlserver.ucpilot.com' -OutputPath c:\DSC
+#Start-DscConfiguration -Path C:\DSC -Verbose -Wait -Force
