@@ -52,12 +52,6 @@ configuration ConfigureSkypeForBusinessServer
 					powercfg -S $plan
 				}
 			}
-			xHotfix HotfixInstall 
-			{ 
-				Ensure = "Present" 
-				URI = "http://hotfixv4.microsoft.com/Windows 8.1/Windows Server 2012 R2/sp1/Fix514814/9600/free/478232_intl_x64_zip.exe" 
-				Id = "KB2982006" 
-			}  
 			xIEEsc EnableIEEscAdmin
 			{
 				IsEnabled = $false
@@ -373,6 +367,13 @@ configuration ConfigureSkypeForBusinessServer
             })
 			
 		}
+#			xHotfix HotfixInstall 
+#			{ 
+#				Ensure = "Present" 
+#				URI = "http://hotfixv4.microsoft.com/Windows 8.1/Windows Server 2012 R2/sp1/Fix514814/9600/free/478232_intl_x64_zip.exe" 
+#				Id = "KB2982006" 
+#			}  
+
 
 
 #            LocalConfigurationManager 
