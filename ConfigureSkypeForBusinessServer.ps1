@@ -363,8 +363,9 @@ configuration ConfigureSkypeForBusinessServer
         {
             Ensure = "Present"
             Name = "Microsoft Skype for Business Server"
-            Path = (Get-DiskImage -ImagePath "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO" | Get-Volume).DriveLetter + ":\Setup\amd64\setup.exe"
-            ProductId = 'C3FF05AC-3EF0-45A8-A7F2-9FD3C0F6DE39'
+            #Path = (Get-DiskImage -ImagePath "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO" | Get-Volume).DriveLetter + ":\Setup\amd64\setup.exe"
+            Path = "G:\Setup\amd64\setup.exe"
+			ProductId = 'C3FF05AC-3EF0-45A8-A7F2-9FD3C0F6DE39'
             Arguments = '/BootstrapCore'
         }
 
