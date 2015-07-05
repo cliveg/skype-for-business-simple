@@ -138,7 +138,7 @@
       "metadata": {
         "Description": "The size of the AD VM Created"
       },
-      "defaultValue": "Standard_DS1"
+      "defaultValue": "Standard_DS2"
     },
     "sqlVMSize": {
       "type": "string",
@@ -783,7 +783,7 @@
 					"properties": {
 						"publisher": "Microsoft.Powershell",
 						"type": "DSC",
-						"typeHandlerVersion": "2.0",
+						"typeHandlerVersion": "1.7",
 						"settings": {
 							"ModulesUrl": "[variables('adModulesURL')]",
 							"ConfigurationFunction": "[variables('adConfigurationFunction')]",
@@ -920,7 +920,7 @@
 			"properties": {
 				"publisher": "Microsoft.Powershell",
 				"type": "DSC",
-				"typeHandlerVersion": "2.0",
+				"typeHandlerVersion": "1.7",
 				"settings": {
 					"ModulesUrl": "[variables('sqlModulesURL')]",
 					"ConfigurationFunction": "[variables('sqlConfigurationFunction')]",
@@ -1016,7 +1016,7 @@
           "properties": {
             "publisher": "Microsoft.Powershell",
             "type": "DSC",
-            "typeHandlerVersion": "2.0",
+            "typeHandlerVersion": "1.7",
             "settings": {
               "ModulesUrl": "[variables('spModulesURL')]",
               "ConfigurationFunction": "[variables('spConfigurationFunction')]",
