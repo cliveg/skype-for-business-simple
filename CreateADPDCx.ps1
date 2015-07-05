@@ -12,12 +12,14 @@
         [Int]$RetryIntervalSec=30
     ) 
     
-    Import-DscResource -ModuleName xActiveDirectory,xDisk, xNetworking, cDisk, xAdcsDeployment
+    Import-DscResource -ModuleName xActiveDirectory,xDisk, xNetworking, cDisk, xAdcsDeployment, xSystemSecurity, xWindowsUpdate
+
     [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
 
     Node localhost
     {
-		Script ConfigureCPU
+
+        Script ConfigureCPU
 		{
 			GetScript = {
 				@{
@@ -35,6 +37,17 @@
 				$plan = $regex.Match($guid).groups[1].value
 				powercfg -S $plan
 			}
+		}
+		xIEEsc EnableIEEscAdmin
+		{
+			IsEnabled = $False
+			UserRole  = "Administrators"
+		}
+
+		xIEEsc EnableIEEscUser
+		{
+			IsEnabled = $False
+			UserRole  = "Users"
 		}
 
         WindowsFeature DNS 
@@ -99,6 +112,7 @@
             Name = 'CertSrv'
             DependsOn = '[WindowsFeature]ADCS-Web-Enrollment','[xADCSCertificationAuthority]ADCS'
         }  
+
         LocalConfigurationManager 
         {
              ActionAfterReboot = 'StopConfiguration'
