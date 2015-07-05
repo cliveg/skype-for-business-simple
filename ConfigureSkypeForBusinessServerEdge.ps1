@@ -2,7 +2,7 @@
 # Copyright="© Microsoft Corporation. All rights reserved."
 #
 
-configuration ConfigureSkypeForBusinessServerEdge
+configuration ConfigureSkypeForBusinessServer
 {
 	
     param
@@ -29,8 +29,7 @@ configuration ConfigureSkypeForBusinessServerEdge
 
         [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
 
-        Import-DscResource -ModuleName xComputerManagement, xActiveDirectory, xDisk, xCredSSP, cDisk, xNetworking, xSystemSecurity
-
+        Import-DscResource -ModuleName xComputerManagement, xActiveDirectory, xDisk, xCredSSP, cDisk, xNetworking, xSystemSecurity, xWindowsUpdate
 
         Node localhost
         {
@@ -53,18 +52,14 @@ configuration ConfigureSkypeForBusinessServerEdge
 					powercfg -S $plan
 				}
 			}
-			xIEEsc EnableIEEscAdmin
-			{
-				IsEnabled = $True
-				UserRole  = "Administrators"
-			}
-
-			xIEEsc EnableIEEscUser
-			{
-				IsEnabled = $False
-				UserRole  = "Users"
-			}
-
+#Registry RegistryExample
+#{
+#    Ensure = "Present"  # You can also set Ensure to "Absent"
+#    Key = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Internet Explorer\Security"
+#    ValueName = "DisableSecuritySettingsCheck"
+#    ValueType = "Dword"
+#    ValueData = 1
+#}
 
             xWaitforDisk Disk2
             {
@@ -89,12 +84,6 @@ configuration ConfigureSkypeForBusinessServerEdge
                 Role = "Client" 
                 DelegateComputers = "*.$Domain", "localhost"
             }
-            WindowsFeature ADPS
-            {
-                Name = "RSAT-AD-PowerShell"
-                Ensure = "Present"
-                DependsOn = "[cDiskNoRestart]SPDataDisk"
-            }
             WindowsFeature NET-Framework-45-Core
             {
                 Name = "NET-Framework-45-Core"
@@ -116,9 +105,32 @@ configuration ConfigureSkypeForBusinessServerEdge
 
 
 
+    Script DownloadSkypeForBusinessISO
+    {
+        GetScript = {
+            @{
+                Result = "DownloadSkypeForBusinessISO"
+            }
+        }
+        TestScript = {
+            $false
+        }
+        SetScript ={
+            $source = "http://care.dlservice.microsoft.com/dl/download/6/6/5/665C9DD5-9E1E-4494-8709-4A3FFC35C6A0/SfB-E-9319.0-enUS.ISO"
+            $destination = "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
+            
+				Invoke-WebRequest $source -OutFile $destination
+				# Mount ISO
+				$destination = "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
+				$mount =  Mount-DiskImage -ImagePath $destination
+				$source = (Get-DiskImage -ImagePath "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO" | Get-Volume).DriveLetter + ":\*"
+				mkdir "C:\WindowsAzure\SfB"
+				$folder = "c:\WindowsAzure\SfB\"
+				cp $source $folder -Recurse -Force
+			
+        }
+    }
 
-#New
-   #script block to download apps and install them
 
 	Script DownloadAndExtractHotFixKB2982006
     {
@@ -140,43 +152,23 @@ configuration ConfigureSkypeForBusinessServerEdge
         }
     }
 
-    Package InstallHotFixKB2982006
-        {
-            Ensure = "Present"
-            Name = "Hotfix KB2982006"
-            Path = "c:\windows\system32\wusa.exe"
-            ProductId = ''
-            Arguments = 'C:\WindowsAzure\Windows8.1-KB2982006-x64.msu /quiet /norestart'
-        }
 
+		xHotfix HotfixInstall 
+		{ 
+			Ensure = "Present" 
+            Path = "C:\WindowsAzure\Windows8.1-KB2982006-x64.msu"
+			Id = "KB2982006" 
+			Log = "c:\WindowsAzure\logs\hotfix-KB2982006.etl"
 
-    Script DownloadSkypeForBusinessISO
-    {
-        GetScript = {
-            @{
-                Result = "DownloadSkypeForBusinessISO"
-            }
-        }
-        TestScript = {
-            Test-Path "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
-        }
-        SetScript ={
-            $source = "http://care.dlservice.microsoft.com/dl/download/6/6/5/665C9DD5-9E1E-4494-8709-4A3FFC35C6A0/SfB-E-9319.0-enUS.ISO"
-            $destination = "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
-            Invoke-WebRequest $source -OutFile $destination
-			# Mount ISO
-            $destination = "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
-			$mount =  Mount-DiskImage -ImagePath $destination
-        }
-    }
+		}  
 
 
     Package SkypeForBusiness_Core_Installation
         {
             Ensure = "Present"
             Name = "Microsoft Skype for Business Server"
-            Path = (Get-DiskImage -ImagePath "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO" | Get-Volume).DriveLetter + ":\Setup\amd64\setup.exe"
-            ProductId = 'C3FF05AC-3EF0-45A8-A7F2-9FD3C0F6DE39'
+            Path = "C:\WindowsAzure\SfB\Setup\amd64\setup.exe"
+			ProductId = 'C3FF05AC-3EF0-45A8-A7F2-9FD3C0F6DE39'
             Arguments = '/BootstrapCore'
         }
 
@@ -191,71 +183,70 @@ configuration ConfigureSkypeForBusinessServerEdge
             Test-Path "C:\WindowsAzure\certnew.cer"
         }
         SetScript ={
-            $source = "http://localhost/certsrv/certnew.cer?ReqID=CACert&Renewal=0&Enc=bin"
+            $source = "http://adserver.ucpilot.com/certsrv/certnew.cer?ReqID=CACert&Renewal=0&Enc=bin"
             $destination = "C:\WindowsAzure\certnew.cer"
             Invoke-WebRequest $source -OutFile $destination
 
 			#Import Certificate
-			Import-PfxCertificate "C:\WindowsAzure\certnew.cer" "LocalMachine" "My"
-        }
-    }
-
-			
-
-    Script ConfigureSkypeForBusinessServerEdge
-    {
-        GetScript = {
-            @{
-                Result = "ConfigureSkypeForBusinessServerEdge"
-            }
-        }
-        TestScript = {
-            $false
-        }
-        SetScript ={
-			Import-Module "C:\Program Files\Common Files\Skype for Business Server 2015\Modules\SkypeForBusiness\SkypeForBusiness.psd1"
-
 			Import-Certificate -FilePath "C:\WindowsAzure\certnew.Cer" -CertStoreLocation 'Cert:\LocalMachine\Trusted Root Certification Authorities' -Verbose 
 
+            $source = "https://sfbserver1.ucpilot.com/meet/config.zip"
+            $destination = "C:\WindowsAzure\config.zip"
+            Invoke-WebRequest $source -OutFile $destination
 
-       }
+
+        }
     }
+
+
+
+
+		Script SFBConfigure
+		{
+			GetScript = {
+				@{
+					Result = ""
+				}
+			}
+			TestScript = {
+				$false
+			}
+            SetScript = ([String]{          
+	           #Path = (Get-DiskImage -ImagePath "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO" | Get-Volume).DriveLetter + ":\Setup\amd64\setup.exe"
+                $password = ConvertTo-SecureString 'AzP@ssword1' -AsPlainText -Force
+                $credential = New-Object System.Management.Automation.PSCredential "ucpilot\AzAdmin",$password
+                Invoke-Command {
+			        whoami > c:\w.txt 
+			        Import-Module "C:\Program Files\Common Files\Skype for Business Server 2015\Modules\SkypeForBusiness\SkypeForBusiness.psd1"
+
+					# Set-CsConfigurationStoreLocation -SqlServerFqdn 'sqlserver.ucpilot.com' -Verbose -Report "C:\WindowsAzure\Logs\Set-CsConfigurationStoreLocation.html"
+					# Set-CsConfigurationStoreLocation -SqlServerFqdn $Computer -SqlInstanceName rtc
+
+				} -ComputerName localhost -EnableNetworkAccess -Credential $credential -Authentication CredSSP
+            })
+			
+		}
+			xIEEsc EnableIEEscAdmin
+			{
+				IsEnabled = $false
+				UserRole  = "Administrators"
+			}
+
+			xIEEsc EnableIEEscUser
+			{
+				IsEnabled = $False
+				UserRole  = "Users"
+			}
+
 
 #            LocalConfigurationManager 
 #            {
 #              ActionAfterReboot = 'StopConfiguration'
 #            }
         }  
-}
 
-function Import-509Certificate {
- 
- param([String]$certPath,[String]$certRootStore,[String]$certStore)
- 
-$pfx = new-object System.Security.Cryptography.X509Certificates.X509Certificate2
-$pfx.import($certPath)
- 
-$store = new-object System.Security.Cryptography.X509Certificates.X509Store($certStore,$certRootStore)
-$store.open("MaxAllowed")
-$store.add($pfx)
-$store.close()
-}
 
-function Import-PfxCertificate {
- 
-param([String]$certPath,[String]$certRootStore = "CurrentUser",[String]$certStore = "My",$pfxPass = $null)
- $pfx = new-object System.Security.Cryptography.X509Certificates.X509Certificate2
- 
- if ($pfxPass -eq $null) {$pfxPass = convertto-securestring "AzP@ssword1" -asplaintext -force}
- 
- $pfx.import($certPath,$pfxPass,"Exportable,PersistKeySet")
- 
- $store = new-object System.Security.Cryptography.X509Certificates.X509Store($certStore,$certRootStore)
- $store.open("MaxAllowed")
- $store.add($pfx)
- $store.close()
 }
-
 
 function Enable-CredSSPNTLM
 { 
@@ -309,3 +300,5 @@ function Enable-CredSSPNTLM
     Write-Verbose "DONE:Setting up CredSSP for NTLM"
 }
 
+#ConfigureSkypeForBusinessServer -DomainName 'ucpilot.com' -DatabaseServer 'sqlserver.ucpilot.com' -OutputPath c:\DSC
+#Start-DscConfiguration -Path C:\DSC -Verbose -Wait -Force

@@ -306,10 +306,11 @@ configuration ConfigureSkypeForBusinessServer
         SetScript ={
             $source = "http://care.dlservice.microsoft.com/dl/download/6/6/5/665C9DD5-9E1E-4494-8709-4A3FFC35C6A0/SfB-E-9319.0-enUS.ISO"
             $destination = "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
-            
+				sleep 30
 				Invoke-WebRequest $source -OutFile $destination
 				# Mount ISO
-				$destination = "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
+				#$destination = "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
+				sleep 30
 				$mount =  Mount-DiskImage -ImagePath $destination
 				$source = (Get-DiskImage -ImagePath "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO" | Get-Volume).DriveLetter + ":\*"
 				mkdir "C:\WindowsAzure\SfB"
@@ -394,7 +395,15 @@ configuration ConfigureSkypeForBusinessServer
 					Set-CsConfigurationStoreLocation -SqlServerFqdn 'sqlserver.ucpilot.com' -Verbose -Report "C:\WindowsAzure\Logs\Set-CsConfigurationStoreLocation.html"
 					# Set-CsConfigurationStoreLocation -SqlServerFqdn $Computer -SqlInstanceName rtc
 
-				} -ComputerName localhost -EnableNetworkAccess -Credential $credential -Authentication CredSSP
+
+
+                    #Topology
+
+                    #Edge
+                    #export-cstopology -filename C:\edge.zip
+                    #cp "c:\WindowsAzure\config.zip" "C:\Program Files\Microsoft Lync Server 2013\Web Components\Join Launcher\Int\" -Force
+
+				} -ComputerName sfbserver1.ucpilot.com -EnableNetworkAccess -Credential $credential -Authentication CredSSP
             })
 			
 		}
