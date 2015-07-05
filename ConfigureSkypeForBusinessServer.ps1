@@ -311,6 +311,10 @@ configuration ConfigureSkypeForBusinessServer
 				# Mount ISO
 				$destination = "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
 				$mount =  Mount-DiskImage -ImagePath $destination
+				$source = (Get-DiskImage -ImagePath "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO" | Get-Volume).DriveLetter + ":\*"
+				mkdir "C:\WindowsAzure\SfB"
+				$folder = "c:\WindowsAzure\SfB\"
+				cp $source $folder -Recurse -Force
 			
         }
     }
@@ -340,7 +344,6 @@ configuration ConfigureSkypeForBusinessServer
 		xHotfix HotfixInstall 
 		{ 
 			Ensure = "Present" 
-#			URI = "http://hotfixv4.microsoft.com/Windows%208.1/Windows%20Server%202012%20R2/sp1/Fix514814/9600/free/478232_intl_x64_zip.exe" 
             Path = "C:\WindowsAzure\Windows8.1-KB2982006-x64.msu"
 			Id = "KB2982006" 
 			Log = "c:\WindowsAzure\logs\hotfix-KB2982006.etl"
@@ -352,8 +355,7 @@ configuration ConfigureSkypeForBusinessServer
         {
             Ensure = "Present"
             Name = "Microsoft Skype for Business Server"
-            #Path = (Get-DiskImage -ImagePath "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO" | Get-Volume).DriveLetter + ":\Setup\amd64\setup.exe"
-            Path = "G:\Setup\amd64\setup.exe"
+            Path = "C:\WindowsAzure\SfB\Setup\amd64\setup.exe"
 			ProductId = 'C3FF05AC-3EF0-45A8-A7F2-9FD3C0F6DE39'
             Arguments = '/BootstrapCore'
         }
@@ -368,7 +370,8 @@ configuration ConfigureSkypeForBusinessServer
 			TestScript = {
 				$false
 			}
-            SetScript = ([String]{            
+            SetScript = ([String]{          
+	           #Path = (Get-DiskImage -ImagePath "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO" | Get-Volume).DriveLetter + ":\Setup\amd64\setup.exe"
                 $password = ConvertTo-SecureString 'AzP@ssword1' -AsPlainText -Force
                 $credential = New-Object System.Management.Automation.PSCredential "ucpilot\AzAdmin",$password
                 Invoke-Command {
@@ -391,7 +394,7 @@ configuration ConfigureSkypeForBusinessServer
 					Set-CsConfigurationStoreLocation -SqlServerFqdn 'sqlserver.ucpilot.com' -Verbose -Report "C:\WindowsAzure\Logs\Set-CsConfigurationStoreLocation.html"
 					# Set-CsConfigurationStoreLocation -SqlServerFqdn $Computer -SqlInstanceName rtc
 
-				} -ComputerName sfbserver1.ucpilot.com -EnableNetworkAccess -Credential $credential -Authentication CredSSP
+				} -ComputerName localhost -EnableNetworkAccess -Credential $credential -Authentication CredSSP
             })
 			
 		}
