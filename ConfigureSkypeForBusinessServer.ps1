@@ -306,12 +306,12 @@ configuration ConfigureSkypeForBusinessServer
         SetScript ={
             $source = "http://care.dlservice.microsoft.com/dl/download/6/6/5/665C9DD5-9E1E-4494-8709-4A3FFC35C6A0/SfB-E-9319.0-enUS.ISO"
             $destination = "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
-            If (Test-Path "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO" -eq $false) {
+            
 				Invoke-WebRequest $source -OutFile $destination
 				# Mount ISO
 				$destination = "C:\WindowsAzure\SfB-E-9319.0-enUS.ISO"
 				$mount =  Mount-DiskImage -ImagePath $destination
-			}
+			
         }
     }
 
